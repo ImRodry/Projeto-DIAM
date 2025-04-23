@@ -1,0 +1,7 @@
+{
+	"recommendations": [
+		"qwtel.sqlite-viewer",
+		"ms-python.black-formatter",
+		"esbenp.prettier-vscode"
+	]
+}
