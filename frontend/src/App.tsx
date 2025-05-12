@@ -5,6 +5,7 @@ import LoginModal from "./components/LoginModal.tsx"
 import SignupModal from "./components/SignupModal.tsx"
 import SimpleLoginManager from "./components/SimpleLoginManager"
 import Home from "./pages/Home"
+import EventDetails from "./pages/EventDetails"
 
 const App = () => {
 	const [showLogin, setShowLogin] = useState(false)
@@ -51,6 +52,7 @@ const App = () => {
 			<Container className="mt-4">
 				<Routes>
 					<Route path="/" element={<Home />} />
+					<Route path="/event/:id" element={<EventDetails />} />
 				</Routes>
 			</Container>
 

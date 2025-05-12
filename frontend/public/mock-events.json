@@ -1,0 +1,18 @@
+[
+  {
+	"id": 1,
+	"title": "Concerto de Verão",
+	"description": "Uma noite de música ao ar livre.",
+	"date": "2025-07-10T19:00:00",
+	"ticket_price": 20,
+	"image": "/images/concerto.jpg"
+  },
+  {
+	"id": 2,
+	"title": "Workshop de Programação",
+	"description": "Aprenda a programar em React.",
+	"date": "2024-05-01T10:00:00",
+	"ticket_price": 15,
+	"image": "/images/workshop.jpg"
+  }
+]
