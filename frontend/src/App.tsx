@@ -43,6 +43,7 @@ const App = () => {
 					<Navbar.Collapse id="navbar">
 						<Nav className="ms-auto align-items-center">
 							<Nav.Link onClick={() => setShowLogin(true)}>Login</Nav.Link>
+							<Nav.Link onClick={() => setShowSignup(true)}>Sign Up</Nav.Link>
 							<SimpleLoginManager />
 						</Nav>
 					</Navbar.Collapse>

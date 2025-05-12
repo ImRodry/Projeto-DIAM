@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { Card, Row, Col } from "react-bootstrap"
+import { Card, Row, Col, Spinner } from "react-bootstrap"
 import { useNavigate } from "react-router"
 
 interface Event {
@@ -13,13 +13,17 @@ interface Event {
 const Home = () => {
 	const [events, setEvents] = useState<Event[]>([])
 	const navigate = useNavigate()
+	const [loading, setLoading] = useState(true)
 
 	useEffect(() => {
 		fetch("/mock-events.json") // TESTE para usar o mock json
-        // fetch("http://localhost:8000/votacao/api/events/") // Uncomment this line to use the real API
+			// fetch("http://localhost:8000/votacao/api/events/") // Uncomment this line to use the real API
 			.then(res => res.json())
 			.then(data => setEvents(data))
+			.finally(() => setLoading(false))
 	}, [])
+
+	if (loading) return <Spinner animation="border" />
 
 	const now = new Date()
 	const upcomingEvents = events.filter(e => new Date(e.date) > now)

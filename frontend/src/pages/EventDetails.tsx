@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react"
+import { useRef, useEffect, useState } from "react"
 import { useParams } from "react-router"
-import { Card, Button } from "react-bootstrap"
+import { Card, Button, Spinner } from "react-bootstrap"
 import LoginModal from "../components/LoginModal.tsx"
 import SignupModal from "../components/SignupModal.tsx"
 
@@ -19,6 +19,7 @@ const EventDetails = () => {
 	const [isLoggedIn, setIsLoggedIn] = useState(false)
 	const [showLogin, setShowLogin] = useState(false)
 	const [showSignup, setShowSignup] = useState(false)
+	const [loading, setLoading] = useState(true)
 
 	const loginModalProps = {
 		show: showLogin,
@@ -56,28 +57,55 @@ const EventDetails = () => {
 				setEvent(foundEvent || null) // If event not found, set it to null
 			})
 			.catch(err => console.error("Failed to load event", err))
-
+			.finally(() => setLoading(false))
 		// Simulate a user login status for testing
-		const mockIsLoggedIn = false // Change to `false` to test logged-out state
+		const mockIsLoggedIn = true // Change to `false` to test logged-out state
 		setIsLoggedIn(mockIsLoggedIn)
 	}, [id])
+
+	const [ticketQuantity, setTicketQuantity] = useState(1)
 
 	const handleBuyClick = () => {
 		if (!isLoggedIn) {
 			alert("Precisa de iniciar sessão para comprar bilhetes.")
 			setShowLogin(true)
 		} else {
+			alert(`Compra iniciada para ${ticketQuantity} bilhete(s).`)
 			// TODO Redirect to purchase logic, or show ticket modal, etc.
-			alert("Compra iniciada (simulada).")
 		}
 	}
 
-	if (!event) return <p>A carregar evento...</p>
+	const [showEvaluationForm, setShowEvaluationForm] = useState(false)
+	const [showEvaluations, setShowEvaluations] = useState(false)
+	const [selectedStars, setSelectedStars] = useState<number>(0)
+	const [evaluations, setEvaluations] = useState<{ stars: number; comment: string }[]>([])
+	const evaluationFormRef = useRef<HTMLDivElement | null>(null)
+	const evaluationsRef = useRef<HTMLDivElement | null>(null)
+	const isPastEvent = new Date(event?.date ?? "") <= new Date()
+
+	const handleEvaluationSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+		e.preventDefault()
+		if (selectedStars < 1 || selectedStars > 5) {
+			alert("Por favor, selecione de 1 a 5 estrelas.")
+			return
+		}
+
+		const form = e.currentTarget
+		const commentInput = form.elements.namedItem("comment") as HTMLTextAreaElement
+		const comment = commentInput.value
+
+		setEvaluations(prev => [...prev, { stars: selectedStars, comment }])
+		setShowEvaluationForm(false)
+		setSelectedStars(0)
+	}
+
+	if (loading) return <Spinner animation="border" />
+	if (!event) return <p>Evento não encontrado.</p>
 
 	return (
 		<div>
 			<LoginModal {...loginModalProps} />
-            <SignupModal {...signupModalProps} />
+			<SignupModal {...signupModalProps} />
 			<Card className="mt-4">
 				{event.image && <Card.Img variant="top" src={event.image} />}
 				<Card.Body>
@@ -89,11 +117,116 @@ const EventDetails = () => {
 					<Card.Text>
 						<strong>Preço do bilhete:</strong> {event.ticket_price.toFixed(2)} €
 					</Card.Text>
-					<Button variant="primary" onClick={handleBuyClick}>
-						Comprar Bilhete
-					</Button>
+					<div className="d-flex flex-wrap gap-2 mt-3">
+						{!isPastEvent && (
+							<div className="d-flex align-items-center gap-2">
+								<input
+									type="number"
+									min={1}
+									value={ticketQuantity}
+									onChange={e => setTicketQuantity(Number(e.target.value))}
+									className="form-control"
+									style={{ width: "80px" }}
+								/>
+								<Button variant="primary" onClick={handleBuyClick}>
+									Comprar Bilhete
+								</Button>
+							</div>
+						)}
+						{isPastEvent && (
+							<Button
+								variant="warning"
+								onClick={() => {
+									setShowEvaluationForm(prev => {
+										const next = !prev
+										if (next) {
+											setShowEvaluations(false) // Auto-collapse other
+											setTimeout(
+												() => evaluationFormRef.current?.scrollIntoView({ behavior: "smooth" }),
+												100
+											)
+										}
+										return next
+									})
+								}}
+							>
+								Avaliar Evento
+							</Button>
+						)}
+						<Button
+							variant="secondary"
+							onClick={() => {
+								setShowEvaluations(prev => {
+									const next = !prev
+									if (next) {
+										setShowEvaluationForm(false) // Auto-collapse other
+										setTimeout(
+											() => evaluationsRef.current?.scrollIntoView({ behavior: "smooth" }),
+											100
+										)
+									}
+									return next
+								})
+							}}
+						>
+							Ver Avaliações
+						</Button>
+					</div>
 				</Card.Body>
 			</Card>
+			{showEvaluationForm && (
+				<div ref={evaluationFormRef} className="mb-4 mt-4">
+					<form onSubmit={handleEvaluationSubmit} className="mt-4">
+						<div className="mb-3">
+							<label className="form-label">Estrelas:</label>
+							<div>
+								{[1, 2, 3, 4, 5].map(star => (
+									<button
+										type="button"
+										key={star}
+										className={`btn btn-sm me-1 ${
+											selectedStars >= star ? "btn-warning" : "btn-outline-secondary"
+										}`}
+										onClick={() => setSelectedStars(star)}
+									>
+										★
+									</button>
+								))}
+							</div>
+						</div>
+						<div className="mb-3">
+							<label htmlFor="comment" className="form-label">
+								Comentário:
+							</label>
+							<textarea id="comment" name="comment" className="form-control" rows={3} required />
+						</div>
+						<Button type="submit" variant="success">
+							Submeter Avaliação
+						</Button>
+					</form>
+				</div>
+			)}
+			{showEvaluations && (
+				<div ref={evaluationsRef} className="mb-4 mt-4">
+					<div className="mt-4">
+						<h5>Avaliações</h5>
+						{evaluations.length === 0 ? (
+							<p>Sem avaliações ainda.</p>
+						) : (
+							evaluations.map((evaluation, index) => (
+								<Card key={index} className="mb-2">
+									<Card.Body>
+										<div>
+											<strong>⭐ {evaluation.stars}/5</strong>
+										</div>
+										<p className="mb-0">{evaluation.comment}</p>
+									</Card.Body>
+								</Card>
+							))
+						)}
+					</div>
+				</div>
+			)}
 		</div>
 	)
 }
