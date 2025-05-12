@@ -1,5 +1,5 @@
 import { useState, useEffect, type FC } from "react"
-import { Button, Alert } from "react-bootstrap"
+import { Button } from "react-bootstrap"
 import { useNavigate } from "react-router"
 
 const SimpleLoginManager: FC = () => {
@@ -38,21 +38,25 @@ const SimpleLoginManager: FC = () => {
 		}
 	}
 
+	const goToProfile = () => {
+		navigate("/profile")
+	}
+
 	return (
-		<div className="d-flex justify-content-between align-items-center">
+		<div className="d-flex justify-content-between align-items-center gap-2">
 			{username ? (
 				<>
-					<Alert variant="success" className="mb-0">
+					<Button variant="success" size="sm" onClick={goToProfile}>
 						Logged in as: <strong>{username}</strong>
-					</Alert>
+					</Button>
 					<Button variant="outline-danger" size="sm" onClick={handleLogout}>
 						Logout
 					</Button>
 				</>
 			) : (
-				<Alert variant="warning" className="mb-0">
+				<Button variant="warning" size="sm" disabled>
 					Not logged in
-				</Alert>
+				</Button>
 			)}
 		</div>
 	)

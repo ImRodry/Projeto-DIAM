@@ -4,8 +4,10 @@ import { Route, Routes } from "react-router"
 import LoginModal from "./components/LoginModal.tsx"
 import SignupModal from "./components/SignupModal.tsx"
 import SimpleLoginManager from "./components/SimpleLoginManager"
-import Home from "./pages/Home"
+import EditProfile from "./pages/EditProfile"
 import EventDetails from "./pages/EventDetails"
+import Home from "./pages/Home"
+import Profile from "./pages/Profile"
 
 const App = () => {
 	const [showLogin, setShowLogin] = useState(false)
@@ -54,6 +56,8 @@ const App = () => {
 				<Routes>
 					<Route path="/" element={<Home />} />
 					<Route path="/event/:id" element={<EventDetails />} />
+					<Route path="/profile" element={<Profile />} />
+					<Route path="/profile/edit" element={<EditProfile />} />
 				</Routes>
 			</Container>
 
