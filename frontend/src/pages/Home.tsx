@@ -25,9 +25,9 @@ function Home() {
 
 	if (loading) return <Spinner animation="border" />
 
-	const now = new Date()
-	const upcomingEvents = events.filter(e => new Date(e.date) > now)
-	const pastEvents = events.filter(e => new Date(e.date) <= now)
+	const now = Date.now()
+	const upcomingEvents = events.filter(e => Date.parse(e.date) > now)
+	const pastEvents = events.filter(e => Date.parse(e.date) <= now)
 
 	const renderEventCard = (event: Event) => (
 		<Col key={event.id} md={4} className="mb-4">
@@ -36,7 +36,9 @@ function Home() {
 				<Card.Body>
 					<Card.Title>{event.title}</Card.Title>
 					<Card.Text>{event.description}</Card.Text>
-					<Card.Text className="text-muted">{new Date(event.date).toLocaleDateString()}</Card.Text>
+					<Card.Text className="text-muted">
+						{new Date(event.date).toLocaleString("pt", { dateStyle: "short", timeStyle: "short" })}
+					</Card.Text>
 				</Card.Body>
 			</Card>
 		</Col>

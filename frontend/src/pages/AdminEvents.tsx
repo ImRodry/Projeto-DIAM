@@ -124,187 +124,215 @@ function AdminEvents() {
     }
 
     return (
-        <div>
-            <h1>Event Management</h1>
-            {error && <Alert variant="danger">{error}</Alert>}
-            
-            <Button variant="primary" className="mb-3" onClick={() => {
-                setSelectedEvent({
-                    id: 0,
-                    name: "",
-                    description: "",
-                    date: "",
-                    location: "",
-                    is_hidden: false,
-                    tickets_sold: 0
-                })
-                setShowCreateModal(true)
-            }}>
-                Create New Event
-            </Button>
+		<div>
+			<h1>Event Management</h1>
+			{error && <Alert variant="danger">{error}</Alert>}
 
-            <Table striped bordered hover>
-                <thead>
-                    <tr>
-                        <th>Name</th>
-                        <th>Date</th>
-                        <th>Location</th>
-                        <th>Hidden</th>
-                        <th>Tickets Sold</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {events.map(event => (
-                        <tr key={event.id}>
-                            <td>{event.name}</td>
-                            <td>{new Date(event.date).toLocaleDateString()}</td>
-                            <td>{event.location}</td>
-                            <td>{event.is_hidden ? "Yes" : "No"}</td>
-                            <td>{event.tickets_sold}</td>
-                            <td>
-                                <Button variant="warning" size="sm" className="me-2" onClick={() => handleEdit(event)}>
-                                    Edit
-                                </Button>
-                                <Button 
-                                    variant="danger" 
-                                    size="sm" 
-                                    onClick={() => handleDelete(event.id, event.tickets_sold)}
-                                    disabled={event.tickets_sold > 0}
-                                >
-                                    Delete
-                                </Button>
-                            </td>
-                        </tr>
-                    ))}
-                </tbody>
-            </Table>
+			<Button
+				variant="primary"
+				className="mb-3"
+				onClick={() => {
+					setSelectedEvent({
+						id: 0,
+						name: "",
+						description: "",
+						date: "",
+						location: "",
+						is_hidden: false,
+						tickets_sold: 0,
+					})
+					setShowCreateModal(true)
+				}}
+			>
+				Create New Event
+			</Button>
 
-            <Modal show={showEditModal} onHide={() => setShowEditModal(false)}>
-                <Modal.Header closeButton>
-                    <Modal.Title>Edit Event</Modal.Title>
-                </Modal.Header>
-                <Form onSubmit={handleEditSubmit}>
-                    <Modal.Body>
-                        <Form.Group className="mb-3">
-                            <Form.Label>Name</Form.Label>
-                            <Form.Control
-                                type="text"
-                                value={selectedEvent?.name || ""}
-                                onChange={e => setSelectedEvent(prev => prev ? {...prev, name: e.target.value} : null)}
-                                required
-                            />
-                        </Form.Group>
-                        <Form.Group className="mb-3">
-                            <Form.Label>Description</Form.Label>
-                            <Form.Control
-                                as="textarea"
-                                value={selectedEvent?.description || ""}
-                                onChange={e => setSelectedEvent(prev => prev ? {...prev, description: e.target.value} : null)}
-                                required
-                            />
-                        </Form.Group>
-                        <Form.Group className="mb-3">
-                            <Form.Label>Date</Form.Label>
-                            <Form.Control
-                                type="datetime-local"
-                                value={selectedEvent?.date ? new Date(selectedEvent.date).toISOString().slice(0, 16) : ""}
-                                onChange={e => setSelectedEvent(prev => prev ? {...prev, date: e.target.value} : null)}
-                                required
-                            />
-                        </Form.Group>
-                        <Form.Group className="mb-3">
-                            <Form.Label>Location</Form.Label>
-                            <Form.Control
-                                type="text"
-                                value={selectedEvent?.location || ""}
-                                onChange={e => setSelectedEvent(prev => prev ? {...prev, location: e.target.value} : null)}
-                                required
-                            />
-                        </Form.Group>
-                        <Form.Group className="mb-3">
-                            <Form.Check
-                                type="checkbox"
-                                label="Hidden from public"
-                                checked={selectedEvent?.is_hidden || false}
-                                onChange={e => setSelectedEvent(prev => prev ? {...prev, is_hidden: e.target.checked} : null)}
-                            />
-                        </Form.Group>
-                    </Modal.Body>
-                    <Modal.Footer>
-                        <Button variant="secondary" onClick={() => setShowEditModal(false)}>
-                            Cancel
-                        </Button>
-                        <Button variant="primary" type="submit">
-                            Save Changes
-                        </Button>
-                    </Modal.Footer>
-                </Form>
-            </Modal>
+			<Table striped bordered hover>
+				<thead>
+					<tr>
+						<th>Name</th>
+						<th>Date</th>
+						<th>Location</th>
+						<th>Hidden</th>
+						<th>Tickets Sold</th>
+						<th>Actions</th>
+					</tr>
+				</thead>
+				<tbody>
+					{events.map(event => (
+						<tr key={event.id}>
+							<td>{event.name}</td>
+							<td>
+								{new Date(event.date).toLocaleString("pt", { dateStyle: "short", timeStyle: "short" })}
+							</td>
+							<td>{event.location}</td>
+							<td>{event.is_hidden ? "Yes" : "No"}</td>
+							<td>{event.tickets_sold}</td>
+							<td>
+								<Button variant="warning" size="sm" className="me-2" onClick={() => handleEdit(event)}>
+									Edit
+								</Button>
+								<Button
+									variant="danger"
+									size="sm"
+									onClick={() => handleDelete(event.id, event.tickets_sold)}
+									disabled={event.tickets_sold > 0}
+								>
+									Delete
+								</Button>
+							</td>
+						</tr>
+					))}
+				</tbody>
+			</Table>
 
-            <Modal show={showCreateModal} onHide={() => setShowCreateModal(false)}>
-                <Modal.Header closeButton>
-                    <Modal.Title>Create New Event</Modal.Title>
-                </Modal.Header>
-                <Form onSubmit={handleCreateSubmit}>
-                    <Modal.Body>
-                        <Form.Group className="mb-3">
-                            <Form.Label>Name</Form.Label>
-                            <Form.Control
-                                type="text"
-                                value={selectedEvent?.name || ""}
-                                onChange={e => setSelectedEvent(prev => prev ? {...prev, name: e.target.value} : null)}
-                                required
-                            />
-                        </Form.Group>
-                        <Form.Group className="mb-3">
-                            <Form.Label>Description</Form.Label>
-                            <Form.Control
-                                as="textarea"
-                                value={selectedEvent?.description || ""}
-                                onChange={e => setSelectedEvent(prev => prev ? {...prev, description: e.target.value} : null)}
-                                required
-                            />
-                        </Form.Group>
-                        <Form.Group className="mb-3">
-                            <Form.Label>Date</Form.Label>
-                            <Form.Control
-                                type="datetime-local"
-                                value={selectedEvent?.date || ""}
-                                onChange={e => setSelectedEvent(prev => prev ? {...prev, date: e.target.value} : null)}
-                                required
-                            />
-                        </Form.Group>
-                        <Form.Group className="mb-3">
-                            <Form.Label>Location</Form.Label>
-                            <Form.Control
-                                type="text"
-                                value={selectedEvent?.location || ""}
-                                onChange={e => setSelectedEvent(prev => prev ? {...prev, location: e.target.value} : null)}
-                                required
-                            />
-                        </Form.Group>
-                        <Form.Group className="mb-3">
-                            <Form.Check
-                                type="checkbox"
-                                label="Hidden from public"
-                                checked={selectedEvent?.is_hidden || false}
-                                onChange={e => setSelectedEvent(prev => prev ? {...prev, is_hidden: e.target.checked} : null)}
-                            />
-                        </Form.Group>
-                    </Modal.Body>
-                    <Modal.Footer>
-                        <Button variant="secondary" onClick={() => setShowCreateModal(false)}>
-                            Cancel
-                        </Button>
-                        <Button variant="primary" type="submit">
-                            Create Event
-                        </Button>
-                    </Modal.Footer>
-                </Form>
-            </Modal>
-        </div>
-    )
+			<Modal show={showEditModal} onHide={() => setShowEditModal(false)}>
+				<Modal.Header closeButton>
+					<Modal.Title>Edit Event</Modal.Title>
+				</Modal.Header>
+				<Form onSubmit={handleEditSubmit}>
+					<Modal.Body>
+						<Form.Group className="mb-3">
+							<Form.Label>Name</Form.Label>
+							<Form.Control
+								type="text"
+								value={selectedEvent?.name || ""}
+								onChange={e =>
+									setSelectedEvent(prev => (prev ? { ...prev, name: e.target.value } : null))
+								}
+								required
+							/>
+						</Form.Group>
+						<Form.Group className="mb-3">
+							<Form.Label>Description</Form.Label>
+							<Form.Control
+								as="textarea"
+								value={selectedEvent?.description || ""}
+								onChange={e =>
+									setSelectedEvent(prev => (prev ? { ...prev, description: e.target.value } : null))
+								}
+								required
+							/>
+						</Form.Group>
+						<Form.Group className="mb-3">
+							<Form.Label>Date</Form.Label>
+							<Form.Control
+								type="datetime-local"
+								value={
+									selectedEvent?.date ? new Date(selectedEvent.date).toISOString().slice(0, 16) : ""
+								}
+								onChange={e =>
+									setSelectedEvent(prev => (prev ? { ...prev, date: e.target.value } : null))
+								}
+								required
+							/>
+						</Form.Group>
+						<Form.Group className="mb-3">
+							<Form.Label>Location</Form.Label>
+							<Form.Control
+								type="text"
+								value={selectedEvent?.location || ""}
+								onChange={e =>
+									setSelectedEvent(prev => (prev ? { ...prev, location: e.target.value } : null))
+								}
+								required
+							/>
+						</Form.Group>
+						<Form.Group className="mb-3">
+							<Form.Check
+								type="checkbox"
+								label="Hidden from public"
+								checked={selectedEvent?.is_hidden || false}
+								onChange={e =>
+									setSelectedEvent(prev => (prev ? { ...prev, is_hidden: e.target.checked } : null))
+								}
+							/>
+						</Form.Group>
+					</Modal.Body>
+					<Modal.Footer>
+						<Button variant="secondary" onClick={() => setShowEditModal(false)}>
+							Cancel
+						</Button>
+						<Button variant="primary" type="submit">
+							Save Changes
+						</Button>
+					</Modal.Footer>
+				</Form>
+			</Modal>
+
+			<Modal show={showCreateModal} onHide={() => setShowCreateModal(false)}>
+				<Modal.Header closeButton>
+					<Modal.Title>Create New Event</Modal.Title>
+				</Modal.Header>
+				<Form onSubmit={handleCreateSubmit}>
+					<Modal.Body>
+						<Form.Group className="mb-3">
+							<Form.Label>Name</Form.Label>
+							<Form.Control
+								type="text"
+								value={selectedEvent?.name || ""}
+								onChange={e =>
+									setSelectedEvent(prev => (prev ? { ...prev, name: e.target.value } : null))
+								}
+								required
+							/>
+						</Form.Group>
+						<Form.Group className="mb-3">
+							<Form.Label>Description</Form.Label>
+							<Form.Control
+								as="textarea"
+								value={selectedEvent?.description || ""}
+								onChange={e =>
+									setSelectedEvent(prev => (prev ? { ...prev, description: e.target.value } : null))
+								}
+								required
+							/>
+						</Form.Group>
+						<Form.Group className="mb-3">
+							<Form.Label>Date</Form.Label>
+							<Form.Control
+								type="datetime-local"
+								value={selectedEvent?.date || ""}
+								onChange={e =>
+									setSelectedEvent(prev => (prev ? { ...prev, date: e.target.value } : null))
+								}
+								required
+							/>
+						</Form.Group>
+						<Form.Group className="mb-3">
+							<Form.Label>Location</Form.Label>
+							<Form.Control
+								type="text"
+								value={selectedEvent?.location || ""}
+								onChange={e =>
+									setSelectedEvent(prev => (prev ? { ...prev, location: e.target.value } : null))
+								}
+								required
+							/>
+						</Form.Group>
+						<Form.Group className="mb-3">
+							<Form.Check
+								type="checkbox"
+								label="Hidden from public"
+								checked={selectedEvent?.is_hidden || false}
+								onChange={e =>
+									setSelectedEvent(prev => (prev ? { ...prev, is_hidden: e.target.checked } : null))
+								}
+							/>
+						</Form.Group>
+					</Modal.Body>
+					<Modal.Footer>
+						<Button variant="secondary" onClick={() => setShowCreateModal(false)}>
+							Cancel
+						</Button>
+						<Button variant="primary" type="submit">
+							Create Event
+						</Button>
+					</Modal.Footer>
+				</Form>
+			</Modal>
+		</div>
+	)
 }
 
 export default AdminEvents 

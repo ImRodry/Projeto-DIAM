@@ -1,5 +1,7 @@
 import { useState, type FormEvent, type ReactNode } from "react"
 import { Modal, Button, Form } from "react-bootstrap"
+import { useNavigate, useLocation } from "react-router"
+import type { APIError, User } from "../types"
 
 interface Props {
 	show: boolean
@@ -10,24 +12,22 @@ interface Props {
 function LoginModal({ show, onHide, onShowSignup }: Props): ReactNode {
 	const [username, setUsername] = useState("")
 	const [password, setPassword] = useState("")
+	const navigate = useNavigate()
+	const location = useLocation()
 
 	const handleSubmit = async (e: FormEvent) => {
 		e.preventDefault()
-		try {
-			const response = await fetch("http://localhost:8000/votacao/api/login/", {
+		const response = await fetch("http://localhost:8000/votacao/api/login/", {
 				method: "POST",
 				credentials: "include",
 				headers: { "Content-Type": "application/json" },
 				body: JSON.stringify({ username, password }),
-			})
+			}),
+			responseData: APIError | User = await response.json()
+		if ("error" in responseData) throw new Error(responseData.error)
 
-			if (!response.ok) throw new Error("Login failed")
-
-			alert("Login successful!")
-			onHide()
-		} catch (error) {
-			alert("Login failed")
-		}
+		onHide()
+		navigate(location.pathname, { state: responseData })
 	}
 
 	return (

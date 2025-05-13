@@ -81,7 +81,6 @@ function EventDetails() {
 	const [evaluations, setEvaluations] = useState<{ stars: number; comment: string }[]>([])
 	const evaluationFormRef = useRef<HTMLDivElement | null>(null)
 	const evaluationsRef = useRef<HTMLDivElement | null>(null)
-	const isPastEvent = new Date(event?.date ?? "") <= new Date()
 
 	const handleEvaluationSubmit = (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault()
@@ -101,6 +100,7 @@ function EventDetails() {
 
 	if (loading) return <Spinner animation="border" />
 	if (!event) return <p>Evento não encontrado.</p>
+	const isPastEvent = Date.parse(event.date) <= Date.now()
 
 	return (
 		<div>
@@ -112,7 +112,8 @@ function EventDetails() {
 					<Card.Title>{event.title}</Card.Title>
 					<Card.Text>{event.description}</Card.Text>
 					<Card.Text>
-						<strong>Data:</strong> {new Date(event.date).toLocaleDateString()}
+						<strong>Data:</strong>{" "}
+						{new Date(event.date).toLocaleString("pt", { dateStyle: "short", timeStyle: "short" })}
 					</Card.Text>
 					<Card.Text>
 						<strong>Preço do bilhete:</strong> {event.ticket_price.toFixed(2)} €
