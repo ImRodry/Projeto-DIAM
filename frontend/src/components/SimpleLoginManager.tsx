@@ -34,11 +34,11 @@ function SimpleLoginManager() {
 				<>
 					{user.is_staff && (
 						<Button variant="info" size="sm" onClick={goToStaff}>
-							Staff Panel
+							Painel do Staff
 						</Button>
 					)}
 					<Button variant="success" size="sm" onClick={goToProfile}>
-						Logged in as: <strong>{user.username}</strong>
+						Logged in como: <strong>{user.username}</strong>
 					</Button>
 					<Button variant="outline-danger" size="sm" onClick={handleLogout}>
 						Logout
@@ -46,7 +46,7 @@ function SimpleLoginManager() {
 				</>
 			) : (
 				<Button variant="warning" size="sm" disabled>
-					Not logged in
+					Não logged in
 				</Button>
 			)}
 		</div>

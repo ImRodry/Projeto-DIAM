@@ -251,10 +251,10 @@ function StaffEvents() {
 					</Modal.Body>
 					<Modal.Footer>
 						<Button variant="secondary" onClick={() => setShowEditModal(false)}>
-							Cancel
+							Cancelar
 						</Button>
 						<Button variant="primary" type="submit">
-							Save Changes
+							Guardar Alterações
 						</Button>
 					</Modal.Footer>
 				</Form>

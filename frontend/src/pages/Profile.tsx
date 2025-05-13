@@ -31,34 +31,34 @@ function Profile() {
 	}
 
 	if (!user) {
-		return <Alert variant="danger">You must be logged in to view this page.</Alert>
+		return <Alert variant="danger">Não Autorizado</Alert>
 	}
 
 	return (
 		<div>
-			<h2>Your Profile</h2>
+			<h2>O Seu Perfil</h2>
 			<Card className="mb-4">
 				<Card.Body>
 					<Card.Title>{user.username}</Card.Title>
 					<Card.Text>Email: {user.email}</Card.Text>
-					<Card.Text>First Name: {user.first_name}</Card.Text>
-					<Card.Text>Last Name: {user.last_name}</Card.Text>
-					<Card.Text>Member since: {new Date(user.date_joined).toLocaleString("pt", { dateStyle: "short", timeStyle: "short" })}</Card.Text>
+					<Card.Text>Primeiro Nome: {user.first_name}</Card.Text>
+					<Card.Text>Último Nome: {user.last_name}</Card.Text>
+					<Card.Text>Membro Desde: {new Date(user.date_joined).toLocaleString("pt", { dateStyle: "short", timeStyle: "short" })}</Card.Text>
 					<Button variant="primary" onClick={() => navigate("/profile/edit")}>
-						Edit Info
+						Editar Informação
 					</Button>
 				</Card.Body>
 			</Card>
 
-			<h3>Purchase History & Invoices</h3>
+			<h3>Histórico de Compras</h3>
 			<Table striped bordered hover>
 				<thead>
 					<tr>
 						<th>#</th>
-						<th>Event</th>
-						<th>Date</th>
-						<th>Tickets</th>
-						<th>Price</th>
+						<th>Evento</th>
+						<th>Data</th>
+						<th>Bilhetes</th>
+						<th>Preço</th>
 					</tr>
 				</thead>
 				<tbody>
@@ -74,7 +74,7 @@ function Profile() {
 						))
 					) : (
 						<tr>
-							<td colSpan={5}>No purchase history available</td>
+							<td colSpan={5}>Sem histórico disponível</td>
 						</tr>
 					)}
 				</tbody>

@@ -77,11 +77,11 @@ function EditProfile() {
 	}
 
 	if (loading) return <Spinner animation="border" />
-	if (!user) return <Alert variant="danger">Not authorized</Alert>
+	if (!user) return <Alert variant="danger">Não Autorizado</Alert>
 
 	return (
 		<Form onSubmit={handleSubmit}>
-			<h2>Edit Profile</h2>
+			<h2>Editar Perfil</h2>
 			<Form.Group className="mb-3">
 				<Form.Label>Username</Form.Label>
 				<Form.Control type="text" name="username" value={formData.username} onChange={handleChange} required />
@@ -91,7 +91,7 @@ function EditProfile() {
 				<Form.Control type="email" name="email" value={formData.email} onChange={handleChange} required />
 			</Form.Group>
 			<Form.Group className="mb-3">
-				<Form.Label>First Name</Form.Label>
+				<Form.Label>Primeiro Nome</Form.Label>
 				<Form.Control
 					type="text"
 					name="first_name"
@@ -101,7 +101,7 @@ function EditProfile() {
 				/>
 			</Form.Group>
 			<Form.Group className="mb-3">
-				<Form.Label>Last Name</Form.Label>
+				<Form.Label>Último Nome</Form.Label>
 				<Form.Control
 					type="text"
 					name="last_name"
@@ -111,9 +111,9 @@ function EditProfile() {
 				/>
 			</Form.Group>
 			<hr />
-			<h4>Change Password</h4>
+			<h4>Alterar Password</h4>
 			<Form.Group className="mb-3">
-				<Form.Label>Old Password</Form.Label>
+				<Form.Label>Password Antiga</Form.Label>
 				<Form.Control
 					type="password"
 					name="old_password"
@@ -123,7 +123,7 @@ function EditProfile() {
 				/>
 			</Form.Group>
 			<Form.Group className="mb-3">
-				<Form.Label>New Password</Form.Label>
+				<Form.Label>Password Nova</Form.Label>
 				<Form.Control
 					type="password"
 					name="new_password"
@@ -133,7 +133,7 @@ function EditProfile() {
 				/>
 			</Form.Group>
 			<Form.Group className="mb-3">
-				<Form.Label>Confirm New Password</Form.Label>
+				<Form.Label>Confirmar Password Nova</Form.Label>
 				<Form.Control
 					type="password"
 					name="confirm_password"
@@ -143,7 +143,7 @@ function EditProfile() {
 				/>
 			</Form.Group>
 			<Button variant="primary" type="submit">
-				Save Changes
+				Guardar Alterações
 			</Button>
 		</Form>
 	)
