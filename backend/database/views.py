@@ -5,66 +5,60 @@ from django.http import JsonResponse
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from rest_framework.request import Request
+from rest_framework.views import APIView
 from rest_framework import status
 from .serializers import UserSerializer
 
 # Create your views here.
 
 
-@api_view(["POST"])
-def signup(request):
-    username = request.data.get("username")
-    password = request.data.get("password")
-    email = request.data.get("email")
-    first_name = request.data.get("first_name")
-    last_name = request.data.get("last_name")
-    if username is None or password is None:
-        return Response(
-            {"error": "Invalid username/password"}, status=status.HTTP_400_BAD_REQUEST
-        )
-    if User.objects.filter(username=username).exists():
-        return Response(
-            {"error": "Username already exists"}, status=status.HTTP_400_BAD_REQUEST
-        )
-    User.objects.create_user(
-        username=username,
-        password=password,
-        email=email,
-        first_name=first_name,
-        last_name=last_name,
-    )
-    user = authenticate(request, username=username, password=password)
-    login(request, user)
-    return Response(
-        UserSerializer(user).data,
-        status=status.HTTP_201_CREATED,
-    )
-
-
-@api_view(["POST"])
-def login_view(request):
-    username = request.data.get("username")
-    password = request.data.get("password")
-    user = authenticate(request, username=username, password=password)
-    if user is not None:
-        login(request, user)
+class SignupView(APIView):
+    def post(self, request: Request):
+        serializer: UserSerializer = UserSerializer(data=request.data)
+        if serializer.is_valid():
+            user: User = serializer.save()
+            user = authenticate(
+                request, username=user.username, password=request.data.get("password")
+            )
+            if user is not None:
+                login(request, user)
+                return JsonResponse(
+                    serializer.data,
+                    status=status.HTTP_201_CREATED,
+                )
         return JsonResponse(
-            UserSerializer(user).data,
-            status=status.HTTP_200_OK,
+            serializer.errors,
+            status=status.HTTP_400_BAD_REQUEST,
         )
-    else:
+
+
+class LoginView(APIView):
+    def post(self, request: Request):
+        username = request.data.get("username")
+        password = request.data.get("password")
+        user = authenticate(request, username=username, password=password)
+        if user is not None:
+            login(request, user)
+            return JsonResponse(
+                UserSerializer(user).data,
+                status=status.HTTP_200_OK,
+            )
+        else:
+            return JsonResponse(
+                {"error": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED
+            )
+
+
+class LogoutView(APIView):
+    def post(self, request: Request):
+        logout(request)
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class UserView(APIView):
+    @permission_classes([IsAuthenticated])
+    def get(self, request: Request):
         return JsonResponse(
-            {"error": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED
+            UserSerializer(request.user).data, status=status.HTTP_200_OK
         )
-
-
-@api_view(["POST"])
-def logout_view(request):
-    logout(request)
-    return Response(status=status.HTTP_204_NO_CONTENT)
-
-
-@api_view(["GET"])
-@permission_classes([IsAuthenticated])
-def user_view(request):
-    return JsonResponse(UserSerializer(request.user).data, status=status.HTTP_200_OK)
