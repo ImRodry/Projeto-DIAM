@@ -2,7 +2,7 @@ import { useEffect, useState } from "react"
 import { Button, Card, Table, Spinner, Alert } from "react-bootstrap"
 import { useNavigate } from "react-router"
 
-const Profile = () => {
+function Profile() {
 	const [user, setUser] = useState<any>(null)
 	const [purchases, setPurchases] = useState<any[]>([])
 	const [loading, setLoading] = useState(true)
@@ -68,8 +68,8 @@ const Profile = () => {
 						<th>#</th>
 						<th>Event</th>
 						<th>Date</th>
-                        <th>Tickets</th>
-                        <th>Price</th>
+						<th>Tickets</th>
+						<th>Price</th>
 					</tr>
 				</thead>
 				<tbody>
@@ -79,7 +79,7 @@ const Profile = () => {
 								<td>{purchase.id}</td>
 								<td>{purchase.event_name}</td>
 								<td>{purchase.date}</td>
-                                <td>{purchase.ticket_amount}</td>
+								<td>{purchase.ticket_amount}</td>
 								<td>{purchase.price}</td>
 							</tr>
 						))

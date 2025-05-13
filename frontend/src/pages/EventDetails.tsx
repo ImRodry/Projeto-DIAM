@@ -13,7 +13,7 @@ interface Event {
 	image?: string
 }
 
-const EventDetails = () => {
+function EventDetails() {
 	const { id } = useParams<{ id: string }>()
 	const [event, setEvent] = useState<Event | null>(null)
 	const [isLoggedIn, setIsLoggedIn] = useState(false)

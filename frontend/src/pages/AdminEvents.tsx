@@ -1,4 +1,4 @@
-import { useState, useEffect, type FC } from "react"
+import { useState, useEffect } from "react"
 import { Table, Button, Modal, Form, Alert } from "react-bootstrap"
 import { useNavigate } from "react-router"
 
@@ -12,7 +12,7 @@ interface Event {
     tickets_sold: number
 }
 
-const AdminEvents: FC = () => {
+function AdminEvents() {
     const navigate = useNavigate()
     const [events, setEvents] = useState<Event[]>([])
     const [showEditModal, setShowEditModal] = useState(false)

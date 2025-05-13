@@ -10,7 +10,7 @@ interface Event {
 	image?: string
 }
 
-const Home = () => {
+function Home() {
 	const [events, setEvents] = useState<Event[]>([])
 	const navigate = useNavigate()
 	const [loading, setLoading] = useState(true)

@@ -1,4 +1,4 @@
-import { useState, type FC, type FormEvent } from "react"
+import { useState, type FormEvent } from "react"
 import { Modal, Button, Form } from "react-bootstrap"
 
 interface Props {
@@ -6,7 +6,7 @@ interface Props {
 	onHide: () => void
 }
 
-const SignupModal: FC<Props> = ({ show, onHide }) => {
+function SignupModal({ show, onHide }: Props) {
 	const [username, setUsername] = useState("")
 	const [password, setPassword] = useState("")
 

@@ -10,7 +10,7 @@ import EventDetails from "./pages/EventDetails"
 import Home from "./pages/Home"
 import Profile from "./pages/Profile"
 
-const App = () => {
+function App() {
 	const [showLogin, setShowLogin] = useState(false)
 	const [showSignup, setShowSignup] = useState(false)
 

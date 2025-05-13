@@ -2,7 +2,7 @@ import { useEffect, useState } from "react"
 import { Button, Form, Spinner, Alert } from "react-bootstrap"
 import { useNavigate } from "react-router"
 
-const EditProfile = () => {
+function EditProfile() {
 	const [user, setUser] = useState<any>(null)
 	const [loading, setLoading] = useState(true)
 	const [formData, setFormData] = useState({ email: "", full_name: "" })

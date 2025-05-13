@@ -1,8 +1,8 @@
-import { useState, useEffect, type FC } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "react-bootstrap"
 import { useNavigate } from "react-router"
 
-const SimpleLoginManager: FC = () => {
+function SimpleLoginManager() {
 	const navigate = useNavigate()
 	const [username, setUsername] = useState<string | null>(null)
 	const [isAdmin, setIsAdmin] = useState(false)
