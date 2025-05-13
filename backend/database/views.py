@@ -11,6 +11,7 @@ from .serializers import UserSerializer
 # Create your views here.
 
 
+@api_view(["POST"])
 def signup(request):
     username = request.data.get("username")
     password = request.data.get("password")
@@ -22,7 +23,9 @@ def signup(request):
         return Response(
             {"error": "Username already exists"}, status=status.HTTP_400_BAD_REQUEST
         )
-    user = User.objects.create_user(username=username, password=password)
+    User.objects.create_user(username=username, password=password)
+    user = authenticate(request, username=username, password=password)
+    login(request, user)
     return Response(
         UserSerializer(user).data,
         status=status.HTTP_201_CREATED,
@@ -46,7 +49,7 @@ def login_view(request):
         )
 
 
-@api_view(["GET"])
+@api_view(["POST"])
 def logout_view(request):
     logout(request)
     return Response(status=status.HTTP_204_NO_CONTENT)
