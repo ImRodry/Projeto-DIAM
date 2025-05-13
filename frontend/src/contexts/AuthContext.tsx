@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, type ReactNode } from "react"
+import { createContext, useContext, useState, useEffect, type ReactNode } from "react"
 import type { User } from "../utils"
 
 type AuthContextType = {
@@ -10,6 +10,23 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
 	const [user, setUser] = useState<User | null>(null)
+
+	// Load user from localStorage on initial render (if available)
+	useEffect(() => {
+		const storedUser = localStorage.getItem("user")
+		if (storedUser) {
+			setUser(JSON.parse(storedUser))
+		}
+	}, [])
+
+	// Update localStorage whenever the user state changes
+	useEffect(() => {
+		if (user) {
+			localStorage.setItem("user", JSON.stringify(user))
+		} else {
+			localStorage.removeItem("user") // Remove user data when logged out
+		}
+	}, [user])
 
 	return <AuthContext.Provider value={{ user, setUser }}>{children}</AuthContext.Provider>
 }

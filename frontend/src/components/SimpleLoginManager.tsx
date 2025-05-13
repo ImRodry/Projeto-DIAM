@@ -1,11 +1,10 @@
 import { Button } from "react-bootstrap"
-import { useNavigate, useLocation } from "react-router"
+import { useNavigate } from "react-router"
 import { useAuth } from "../contexts/AuthContext"
 import { fetchWithCSRF, type APIError } from "../utils"
 
 function SimpleLoginManager() {
 	const navigate = useNavigate()
-	const location = useLocation()
 	const { user, setUser } = useAuth()
 
 	const handleLogout = async () => {
@@ -13,11 +12,12 @@ function SimpleLoginManager() {
 			method: "POST",
 			credentials: "include",
 		})
+		if (response.status === 204) {
+			setUser(null) // Clear the user from context
+			return
+		}
 		const responseData: APIError | { success: string } = await response.json()
 		if ("error" in responseData) throw new Error(responseData.error)
-
-		setUser(null)
-		navigate(location.pathname)
 	}
 
 	const goToProfile = () => {

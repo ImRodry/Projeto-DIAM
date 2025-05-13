@@ -23,7 +23,6 @@ function LoginModal({ show, onHide, onShowSignup }: Props): ReactNode {
 				body: JSON.stringify({ username, password }),
 			}),
 			responseData: APIError | User = await response.json()
-		console.log(responseData)
 		if ("error" in responseData) throw new Error(responseData.error)
 
 		setUser(responseData)
