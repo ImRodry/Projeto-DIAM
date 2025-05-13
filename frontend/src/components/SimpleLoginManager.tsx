@@ -13,7 +13,8 @@ function SimpleLoginManager() {
 			credentials: "include",
 		})
 		if (response.status === 204) {
-			setUser(null) // Clear the user from context
+			setUser(null)
+			navigate("/")
 			return
 		}
 		const responseData: APIError | { success: string } = await response.json()
