@@ -15,6 +15,9 @@ from .serializers import UserSerializer
 def signup(request):
     username = request.data.get("username")
     password = request.data.get("password")
+    email = request.data.get("email")
+    first_name = request.data.get("first_name")
+    last_name = request.data.get("last_name")
     if username is None or password is None:
         return Response(
             {"error": "Invalid username/password"}, status=status.HTTP_400_BAD_REQUEST
@@ -23,7 +26,13 @@ def signup(request):
         return Response(
             {"error": "Username already exists"}, status=status.HTTP_400_BAD_REQUEST
         )
-    User.objects.create_user(username=username, password=password)
+    User.objects.create_user(
+        username=username,
+        password=password,
+        email=email,
+        first_name=first_name,
+        last_name=last_name,
+    )
     user = authenticate(request, username=username, password=password)
     login(request, user)
     return Response(

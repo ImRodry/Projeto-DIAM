@@ -4,16 +4,17 @@ import { Route, Routes } from "react-router"
 import LoginModal from "./components/LoginModal.tsx"
 import SignupModal from "./components/SignupModal.tsx"
 import SimpleLoginManager from "./components/SimpleLoginManager"
+import { AuthProvider, useAuth } from "./contexts/AuthContext"
 import StaffEvents from "./pages/StaffEvents"
 import EditProfile from "./pages/EditProfile"
 import EventDetails from "./pages/EventDetails"
 import Home from "./pages/Home"
 import Profile from "./pages/Profile"
-import { AuthProvider } from "./contexts/AuthContext"
 
-function App() {
+function AppContent() {
 	const [showLogin, setShowLogin] = useState(false)
 	const [showSignup, setShowSignup] = useState(false)
+	const { user } = useAuth()
 
 	const loginModalProps = {
 		show: showLogin,
@@ -30,7 +31,7 @@ function App() {
 	}
 
 	return (
-		<AuthProvider>
+		<>
 			<Navbar bg="light" expand="lg">
 				<Container>
 					<Navbar.Brand href="/">
@@ -46,8 +47,12 @@ function App() {
 					<Navbar.Toggle aria-controls="navbar" />
 					<Navbar.Collapse id="navbar">
 						<Nav className="ms-auto align-items-center">
-							<Nav.Link onClick={() => setShowLogin(true)}>Login</Nav.Link>
-							<Nav.Link onClick={() => setShowSignup(true)}>Sign Up</Nav.Link>
+							{!user && (
+								<>
+									<Nav.Link onClick={() => setShowLogin(true)}>Login</Nav.Link>
+									<Nav.Link onClick={() => setShowSignup(true)}>Sign Up</Nav.Link>
+								</>
+							)}
 							<SimpleLoginManager />
 						</Nav>
 					</Navbar.Collapse>
@@ -66,6 +71,14 @@ function App() {
 
 			<LoginModal {...loginModalProps} />
 			<SignupModal {...signupModalProps} />
+		</>
+	)
+}
+
+function App() {
+	return (
+		<AuthProvider>
+			<AppContent />
 		</AuthProvider>
 	)
 }

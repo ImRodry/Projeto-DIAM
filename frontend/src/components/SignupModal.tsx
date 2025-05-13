@@ -11,6 +11,9 @@ interface Props {
 function SignupModal({ show, onHide }: Props) {
 	const [username, setUsername] = useState("")
 	const [password, setPassword] = useState("")
+	const [email, setEmail] = useState("")
+	const [firstName, setFirstName] = useState("")
+	const [lastName, setLastName] = useState("")
 	const { setUser } = useAuth()
 
 	const handleSubmit = async (e: FormEvent) => {
@@ -19,7 +22,13 @@ function SignupModal({ show, onHide }: Props) {
 				method: "POST",
 				credentials: "include",
 				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify({ username, password }),
+				body: JSON.stringify({
+					username,
+					password,
+					email,
+					first_name: firstName,
+					last_name: lastName,
+				}),
 			}),
 			responseData: APIError | User = await response.json()
 		if ("error" in responseData) throw new Error(responseData.error)
@@ -50,6 +59,28 @@ function SignupModal({ show, onHide }: Props) {
 							type="password"
 							value={password}
 							onChange={e => setPassword(e.target.value)}
+							required
+						/>
+					</Form.Group>
+					<Form.Group controlId="formSignupEmail" className="mt-3">
+						<Form.Label>Email</Form.Label>
+						<Form.Control type="email" value={email} onChange={e => setEmail(e.target.value)} required />
+					</Form.Group>
+					<Form.Group controlId="formSignupFirstName" className="mt-3">
+						<Form.Label>First Name</Form.Label>
+						<Form.Control
+							type="text"
+							value={firstName}
+							onChange={e => setFirstName(e.target.value)}
+							required
+						/>
+					</Form.Group>
+					<Form.Group controlId="formSignupLastName" className="mt-3">
+						<Form.Label>Last Name</Form.Label>
+						<Form.Control
+							type="text"
+							value={lastName}
+							onChange={e => setLastName(e.target.value)}
 							required
 						/>
 					</Form.Group>
