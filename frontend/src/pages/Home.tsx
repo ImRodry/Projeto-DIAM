@@ -17,7 +17,7 @@ function Home() {
 
 	useEffect(() => {
 		fetch("/mock-events.json") // TESTE para usar o mock json
-			// fetch("http://localhost:8000/votacao/api/events/") // Uncomment this line to use the real API
+			// fetch("http://localhost:8000/database/api/events/") // Uncomment this line to use the real API
 			.then(res => res.json())
 			.then(data => setEvents(data))
 			.finally(() => setLoading(false))

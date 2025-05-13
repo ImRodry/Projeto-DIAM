@@ -1,5 +1,7 @@
 import { useState, type FormEvent } from "react"
 import { Modal, Button, Form } from "react-bootstrap"
+import { fetchWithCSRF, type APIError, type User } from "../utils"
+import { useAuth } from "../contexts/AuthContext"
 
 interface Props {
 	show: boolean
@@ -9,23 +11,21 @@ interface Props {
 function SignupModal({ show, onHide }: Props) {
 	const [username, setUsername] = useState("")
 	const [password, setPassword] = useState("")
+	const { setUser } = useAuth()
 
 	const handleSubmit = async (e: FormEvent) => {
 		e.preventDefault()
-		try {
-			const response = await fetch("http://localhost:8000/votacao/api/signup/", {
+		const response = await fetchWithCSRF("http://localhost:8000/database/api/signup/", {
 				method: "POST",
+				credentials: "include",
 				headers: { "Content-Type": "application/json" },
 				body: JSON.stringify({ username, password }),
-			})
+			}),
+			responseData: APIError | User = await response.json()
+		if ("error" in responseData) throw new Error(responseData.error)
 
-			if (!response.ok) throw new Error("Signup failed")
-
-			alert("Signup successful!")
-			onHide()
-		} catch (error) {
-			alert("Signup failed")
-		}
+		setUser(responseData)
+		onHide()
 	}
 
 	return (

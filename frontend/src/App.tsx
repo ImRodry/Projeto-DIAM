@@ -4,11 +4,12 @@ import { Route, Routes } from "react-router"
 import LoginModal from "./components/LoginModal.tsx"
 import SignupModal from "./components/SignupModal.tsx"
 import SimpleLoginManager from "./components/SimpleLoginManager"
-import AdminEvents from "./pages/AdminEvents"
+import StaffEvents from "./pages/StaffEvents"
 import EditProfile from "./pages/EditProfile"
 import EventDetails from "./pages/EventDetails"
 import Home from "./pages/Home"
 import Profile from "./pages/Profile"
+import { AuthProvider } from "./contexts/AuthContext"
 
 function App() {
 	const [showLogin, setShowLogin] = useState(false)
@@ -29,7 +30,7 @@ function App() {
 	}
 
 	return (
-		<>
+		<AuthProvider>
 			<Navbar bg="light" expand="lg">
 				<Container>
 					<Navbar.Brand href="/">
@@ -59,13 +60,13 @@ function App() {
 					<Route path="/event/:id" element={<EventDetails />} />
 					<Route path="/profile" element={<Profile />} />
 					<Route path="/profile/edit" element={<EditProfile />} />
-					<Route path="/admin/events" element={<AdminEvents />} />
+					<Route path="/staff/events" element={<StaffEvents />} />
 				</Routes>
 			</Container>
 
 			<LoginModal {...loginModalProps} />
 			<SignupModal {...signupModalProps} />
-		</>
+		</AuthProvider>
 	)
 }
 

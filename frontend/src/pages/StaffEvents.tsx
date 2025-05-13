@@ -12,29 +12,29 @@ interface Event {
     tickets_sold: number
 }
 
-function AdminEvents() {
+function StaffEvents() {
     const navigate = useNavigate()
     const [events, setEvents] = useState<Event[]>([])
     const [showEditModal, setShowEditModal] = useState(false)
     const [showCreateModal, setShowCreateModal] = useState(false)
     const [selectedEvent, setSelectedEvent] = useState<Event | null>(null)
     const [error, setError] = useState<string | null>(null)
-    const [isAdmin, setIsAdmin] = useState<boolean | null>(null)
+    const [isStaff, setIsStaff] = useState<boolean | null>(null)
 
     useEffect(() => {
-        // Check if user is admin
-        fetch("http://localhost:8000/votacao/api/user/", {
+        // Check if user is Staff
+        fetch("http://localhost:8000/database/api/user/", {
             method: "GET",
             credentials: "include",
         })
             .then(async res => {
                 if (!res.ok) throw new Error()
                 const data = await res.json()
-                if (!data.is_superuser) {
+                if (!data.is_staff) {
                     navigate("/")
                     return
                 }
-                setIsAdmin(true)
+                setIsStaff(true)
                 fetchEvents()
             })
             .catch(() => {
@@ -44,7 +44,7 @@ function AdminEvents() {
 
     const fetchEvents = async () => {
         try {
-            const response = await fetch("http://localhost:8000/votacao/api/events/admin/", {
+            const response = await fetch("http://localhost:8000/database/api/events/admin/", {
                 credentials: "include"
             })
             if (!response.ok) throw new Error("Failed to fetch events")
@@ -55,8 +55,8 @@ function AdminEvents() {
         }
     }
 
-    // Don't render anything while checking admin status
-    if (isAdmin === null) {
+    // Don't render anything while checking Staff status
+    if (isStaff === null) {
         return null
     }
 
@@ -74,7 +74,7 @@ function AdminEvents() {
         if (!confirm("Are you sure you want to delete this event?")) return
 
         try {
-            const response = await fetch(`http://localhost:8000/votacao/api/events/${eventId}/`, {
+            const response = await fetch(`http://localhost:8000/database/api/events/${eventId}/`, {
                 method: "DELETE",
                 credentials: "include"
             })
@@ -90,7 +90,7 @@ function AdminEvents() {
         if (!selectedEvent) return
 
         try {
-            const response = await fetch(`http://localhost:8000/votacao/api/events/${selectedEvent.id}/`, {
+            const response = await fetch(`http://localhost:8000/database/api/events/${selectedEvent.id}/`, {
                 method: "PUT",
                 headers: { "Content-Type": "application/json" },
                 credentials: "include",
@@ -109,7 +109,7 @@ function AdminEvents() {
         if (!selectedEvent) return
 
         try {
-            const response = await fetch("http://localhost:8000/votacao/api/events/", {
+            const response = await fetch("http://localhost:8000/database/api/events/", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 credentials: "include",
@@ -335,4 +335,4 @@ function AdminEvents() {
 	)
 }
 
-export default AdminEvents 
+export default StaffEvents 

@@ -9,7 +9,7 @@ function EditProfile() {
 	const navigate = useNavigate()
 
 	useEffect(() => {
-		fetch("http://localhost:8000/votacao/api/user/", {
+		fetch("http://localhost:8000/database/api/user/", {
 			method: "GET",
 			credentials: "include",
 		})
@@ -32,7 +32,7 @@ function EditProfile() {
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault()
 
-		const res = await fetch("http://localhost:8000/votacao/api/user/update/", {
+		const res = await fetch("http://localhost:8000/database/api/user/update/", {
 			method: "POST",
 			headers: { "Content-Type": "application/json" },
 			credentials: "include",

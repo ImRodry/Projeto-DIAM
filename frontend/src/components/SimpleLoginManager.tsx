@@ -1,66 +1,44 @@
-import { useState, useEffect } from "react"
 import { Button } from "react-bootstrap"
-import { useNavigate } from "react-router"
+import { useNavigate, useLocation } from "react-router"
+import { useAuth } from "../contexts/AuthContext"
+import { fetchWithCSRF, type APIError } from "../utils"
 
 function SimpleLoginManager() {
 	const navigate = useNavigate()
-	const [username, setUsername] = useState<string | null>(null)
-	const [isAdmin, setIsAdmin] = useState(false)
-
-	useEffect(() => {
-		fetch("http://localhost:8000/votacao/api/user/", {
-			method: "GET",
-			credentials: "include",
-		})
-			.then(async res => {
-				if (!res.ok) throw new Error()
-				const data = await res.json()
-				setUsername(data.username)
-				setIsAdmin(data.is_superuser)
-			})
-			.catch(() => {
-				console.log("User not logged in")
-				setUsername(null)
-				setIsAdmin(false)
-			})
-	}, [])
+	const location = useLocation()
+	const { user, setUser } = useAuth()
 
 	const handleLogout = async () => {
-		try {
-			const response = await fetch("http://localhost:8000/votacao/api/logout/", {
-				method: "GET",
-				credentials: "include",
-			})
+		const response = await fetchWithCSRF("http://localhost:8000/database/api/logout/", {
+			method: "POST",
+			credentials: "include",
+		})
+		const responseData: APIError | { success: string } = await response.json()
+		if ("error" in responseData) throw new Error(responseData.error)
 
-			if (!response.ok) throw new Error()
-
-			setUsername(null)
-			setIsAdmin(false)
-			navigate("/")
-		} catch {
-			alert("Logout failed")
-		}
+		setUser(null)
+		navigate(location.pathname)
 	}
 
 	const goToProfile = () => {
 		navigate("/profile")
 	}
 
-	const goToAdmin = () => {
+	const goToStaff = () => {
 		navigate("/admin/events")
 	}
 
 	return (
 		<div className="d-flex justify-content-between align-items-center gap-2">
-			{username ? (
+			{user ? (
 				<>
-					{isAdmin && (
-						<Button variant="info" size="sm" onClick={goToAdmin}>
-							Admin Panel
+					{user.is_staff && (
+						<Button variant="info" size="sm" onClick={goToStaff}>
+							Staff Panel
 						</Button>
 					)}
 					<Button variant="success" size="sm" onClick={goToProfile}>
-						Logged in as: <strong>{username}</strong>
+						Logged in as: <strong>{user.username}</strong>
 					</Button>
 					<Button variant="outline-danger" size="sm" onClick={handleLogout}>
 						Logout

@@ -3,7 +3,7 @@ from django.contrib.auth.models import User
 
 
 # Create your serializers here
-class UserSerializer(serializers.Serializer):
+class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = [

@@ -10,7 +10,7 @@ function Profile() {
 
 	useEffect(() => {
 		// Fetch user data
-		fetch("http://localhost:8000/votacao/api/user/", {
+		fetch("http://localhost:8000/database/api/user/", {
 			method: "GET",
 			credentials: "include",
 		})
@@ -24,7 +24,7 @@ function Profile() {
 			})
 
 		// Fetch purchase history
-		fetch("http://localhost:8000/votacao/api/user/purchases/", {
+		fetch("http://localhost:8000/database/api/user/purchases/", {
 			method: "GET",
 			credentials: "include",
 		})

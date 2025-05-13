@@ -36,12 +36,12 @@ function EventDetails() {
 	}
 
 	// useEffect(() => {
-	// 	fetch(`http://localhost:8000/votacao/api/events/${id}/`)
+	// 	fetch(`http://localhost:8000/database/api/events/${id}/`)
 	// 		.then(res => res.json())
 	// 		.then(data => setEvent(data))
 	// 		.catch(err => console.error("Failed to load event", err))
 
-	// 	fetch("http://localhost:8000/votacao/api/user/", { credentials: "include" })
+	// 	fetch("http://localhost:8000/database/api/user/", { credentials: "include" })
 	// 		.then(res => setIsLoggedIn(res.ok))
 	// 		.catch(() => setIsLoggedIn(false))
 	// }, [id])
@@ -154,24 +154,26 @@ function EventDetails() {
 								Avaliar Evento
 							</Button>
 						)}
-						<Button
-							variant="secondary"
-							onClick={() => {
-								setShowEvaluations(prev => {
-									const next = !prev
-									if (next) {
-										setShowEvaluationForm(false) // Auto-collapse other
-										setTimeout(
-											() => evaluationsRef.current?.scrollIntoView({ behavior: "smooth" }),
-											100
-										)
-									}
-									return next
-								})
-							}}
-						>
-							Ver Avaliações
-						</Button>
+						{isPastEvent && (
+							<Button
+								variant="secondary"
+								onClick={() => {
+									setShowEvaluations(prev => {
+										const next = !prev
+										if (next) {
+											setShowEvaluationForm(false) // Auto-collapse other
+											setTimeout(
+												() => evaluationsRef.current?.scrollIntoView({ behavior: "smooth" }),
+												100
+											)
+										}
+										return next
+									})
+								}}
+							>
+								Ver Avaliações
+							</Button>
+						)}
 					</div>
 				</Card.Body>
 			</Card>
@@ -181,18 +183,29 @@ function EventDetails() {
 						<div className="mb-3">
 							<label className="form-label">Estrelas:</label>
 							<div>
-								{[1, 2, 3, 4, 5].map(star => (
-									<button
-										type="button"
-										key={star}
-										className={`btn btn-sm me-1 ${
-											selectedStars >= star ? "btn-warning" : "btn-outline-secondary"
-										}`}
-										onClick={() => setSelectedStars(star)}
-									>
-										★
-									</button>
-								))}
+								{[1, 2, 3, 4, 5].map(star => {
+									let colorClass = "btn-outline-secondary" // default (unselected)
+
+									if (selectedStars >= star) {
+										if (selectedStars <= 2) {
+											colorClass = "btn-danger" // red
+										} else if (selectedStars === 3) {
+											colorClass = "btn-warning" // grey
+										} else {
+											colorClass = "btn-success" // green
+										}
+									}
+									return (
+										<button
+											type="button"
+											key={star}
+											className={`btn btn-sm me-1 ${colorClass}`}
+											onClick={() => setSelectedStars(star)}
+										>
+											★
+										</button>
+									)
+								})}
 							</div>
 						</div>
 						<div className="mb-3">
