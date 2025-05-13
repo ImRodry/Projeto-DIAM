@@ -5,6 +5,7 @@ import { useNavigate } from "react-router"
 const SimpleLoginManager: FC = () => {
 	const navigate = useNavigate()
 	const [username, setUsername] = useState<string | null>(null)
+	const [isAdmin, setIsAdmin] = useState(false)
 
 	useEffect(() => {
 		fetch("http://localhost:8000/votacao/api/user/", {
@@ -15,10 +16,12 @@ const SimpleLoginManager: FC = () => {
 				if (!res.ok) throw new Error()
 				const data = await res.json()
 				setUsername(data.username)
+				setIsAdmin(data.is_superuser)
 			})
 			.catch(() => {
 				console.log("User not logged in")
 				setUsername(null)
+				setIsAdmin(false)
 			})
 	}, [])
 
@@ -32,6 +35,7 @@ const SimpleLoginManager: FC = () => {
 			if (!response.ok) throw new Error()
 
 			setUsername(null)
+			setIsAdmin(false)
 			navigate("/")
 		} catch {
 			alert("Logout failed")
@@ -42,10 +46,19 @@ const SimpleLoginManager: FC = () => {
 		navigate("/profile")
 	}
 
+	const goToAdmin = () => {
+		navigate("/admin/events")
+	}
+
 	return (
 		<div className="d-flex justify-content-between align-items-center gap-2">
 			{username ? (
 				<>
+					{isAdmin && (
+						<Button variant="info" size="sm" onClick={goToAdmin}>
+							Admin Panel
+						</Button>
+					)}
 					<Button variant="success" size="sm" onClick={goToProfile}>
 						Logged in as: <strong>{username}</strong>
 					</Button>

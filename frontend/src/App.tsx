@@ -4,6 +4,7 @@ import { Route, Routes } from "react-router"
 import LoginModal from "./components/LoginModal.tsx"
 import SignupModal from "./components/SignupModal.tsx"
 import SimpleLoginManager from "./components/SimpleLoginManager"
+import AdminEvents from "./pages/AdminEvents"
 import EditProfile from "./pages/EditProfile"
 import EventDetails from "./pages/EventDetails"
 import Home from "./pages/Home"
@@ -58,6 +59,7 @@ const App = () => {
 					<Route path="/event/:id" element={<EventDetails />} />
 					<Route path="/profile" element={<Profile />} />
 					<Route path="/profile/edit" element={<EditProfile />} />
+					<Route path="/admin/events" element={<AdminEvents />} />
 				</Routes>
 			</Container>
 
