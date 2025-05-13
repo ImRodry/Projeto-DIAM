@@ -67,10 +67,8 @@ function EventDetails() {
 
 	const handleBuyClick = () => {
 		if (!isLoggedIn) {
-			alert("Precisa de iniciar sessão para comprar bilhetes.")
 			setShowLogin(true)
 		} else {
-			alert(`Compra iniciada para ${ticketQuantity} bilhete(s).`)
 			// TODO Redirect to purchase logic, or show ticket modal, etc.
 		}
 	}
@@ -130,7 +128,7 @@ function EventDetails() {
 									style={{ width: "80px" }}
 								/>
 								<Button variant="primary" onClick={handleBuyClick}>
-									Comprar Bilhete
+									Comprar
 								</Button>
 							</div>
 						)}

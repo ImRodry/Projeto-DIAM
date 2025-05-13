@@ -1,28 +1,15 @@
 import { useEffect, useState } from "react"
 import { Button, Card, Table, Spinner, Alert } from "react-bootstrap"
 import { useNavigate } from "react-router"
+import { useAuth } from "../contexts/AuthContext" // make sure the path is correct
 
 function Profile() {
-	const [user, setUser] = useState<any>(null)
 	const [purchases, setPurchases] = useState<any[]>([])
 	const [loading, setLoading] = useState(true)
+	const { user } = useAuth()
 	const navigate = useNavigate()
 
 	useEffect(() => {
-		// Fetch user data
-		fetch("http://localhost:8000/database/api/user/", {
-			method: "GET",
-			credentials: "include",
-		})
-			.then(async res => {
-				if (!res.ok) throw new Error()
-				const data = await res.json()
-				setUser(data)
-			})
-			.catch(() => {
-				setUser(null)
-			})
-
 		// Fetch purchase history
 		fetch("http://localhost:8000/database/api/user/purchases/", {
 			method: "GET",
@@ -54,7 +41,9 @@ function Profile() {
 				<Card.Body>
 					<Card.Title>{user.username}</Card.Title>
 					<Card.Text>Email: {user.email}</Card.Text>
-					<Card.Text>Full Name: {user.full_name}</Card.Text>
+					<Card.Text>First Name: {user.first_name}</Card.Text>
+					<Card.Text>Last Name: {user.last_name}</Card.Text>
+					<Card.Text>Member since: {new Date(user.date_joined).toLocaleString("pt", { dateStyle: "short", timeStyle: "short" })}</Card.Text>
 					<Button variant="primary" onClick={() => navigate("/profile/edit")}>
 						Edit Info
 					</Button>
@@ -85,7 +74,7 @@ function Profile() {
 						))
 					) : (
 						<tr>
-							<td colSpan={4}>No purchase history available</td>
+							<td colSpan={5}>No purchase history available</td>
 						</tr>
 					)}
 				</tbody>
