@@ -8,7 +8,7 @@ interface Event {
     description: string
     date: string
     location: string
-    is_hidden: boolean
+    is_visible: boolean
     tickets_sold: number
 }
 
@@ -44,7 +44,7 @@ function StaffEvents() {
 
     const fetchEvents = async () => {
         try {
-            const response = await fetch("http://localhost:8000/database/api/events/admin/", {
+            const response = await fetch("http://localhost:8000/database/api/events/staff/", {
                 credentials: "include"
             })
             if (!response.ok) throw new Error("Failed to fetch events")
@@ -125,7 +125,7 @@ function StaffEvents() {
 
     return (
 		<div>
-			<h1>Event Management</h1>
+			<h1>Administração de Eventos</h1>
 			{error && <Alert variant="danger">{error}</Alert>}
 
 			<Button
@@ -138,24 +138,24 @@ function StaffEvents() {
 						description: "",
 						date: "",
 						location: "",
-						is_hidden: false,
+						is_visible: false,
 						tickets_sold: 0,
 					})
 					setShowCreateModal(true)
 				}}
 			>
-				Create New Event
+				Criar Novo Evento
 			</Button>
 
 			<Table striped bordered hover>
 				<thead>
 					<tr>
-						<th>Name</th>
-						<th>Date</th>
-						<th>Location</th>
-						<th>Hidden</th>
-						<th>Tickets Sold</th>
-						<th>Actions</th>
+						<th>Nome</th>
+						<th>Data</th>
+						<th>Localização</th>
+						<th>Visível</th>
+						<th>Bilhetes Vendidos</th>
+						<th>Ações</th>
 					</tr>
 				</thead>
 				<tbody>
@@ -166,11 +166,11 @@ function StaffEvents() {
 								{new Date(event.date).toLocaleString("pt", { dateStyle: "short", timeStyle: "short" })}
 							</td>
 							<td>{event.location}</td>
-							<td>{event.is_hidden ? "Yes" : "No"}</td>
+							<td>{event.is_visible ? "Sim" : "Não"}</td>
 							<td>{event.tickets_sold}</td>
 							<td>
 								<Button variant="warning" size="sm" className="me-2" onClick={() => handleEdit(event)}>
-									Edit
+									Editar
 								</Button>
 								<Button
 									variant="danger"
@@ -178,7 +178,7 @@ function StaffEvents() {
 									onClick={() => handleDelete(event.id, event.tickets_sold)}
 									disabled={event.tickets_sold > 0}
 								>
-									Delete
+									Apagar
 								</Button>
 							</td>
 						</tr>
@@ -188,12 +188,12 @@ function StaffEvents() {
 
 			<Modal show={showEditModal} onHide={() => setShowEditModal(false)}>
 				<Modal.Header closeButton>
-					<Modal.Title>Edit Event</Modal.Title>
+					<Modal.Title>Editar Evento</Modal.Title>
 				</Modal.Header>
 				<Form onSubmit={handleEditSubmit}>
 					<Modal.Body>
 						<Form.Group className="mb-3">
-							<Form.Label>Name</Form.Label>
+							<Form.Label>Nome</Form.Label>
 							<Form.Control
 								type="text"
 								value={selectedEvent?.name || ""}
@@ -204,7 +204,7 @@ function StaffEvents() {
 							/>
 						</Form.Group>
 						<Form.Group className="mb-3">
-							<Form.Label>Description</Form.Label>
+							<Form.Label>Descrição</Form.Label>
 							<Form.Control
 								as="textarea"
 								value={selectedEvent?.description || ""}
@@ -215,7 +215,7 @@ function StaffEvents() {
 							/>
 						</Form.Group>
 						<Form.Group className="mb-3">
-							<Form.Label>Date</Form.Label>
+							<Form.Label>Data</Form.Label>
 							<Form.Control
 								type="datetime-local"
 								value={
@@ -228,7 +228,7 @@ function StaffEvents() {
 							/>
 						</Form.Group>
 						<Form.Group className="mb-3">
-							<Form.Label>Location</Form.Label>
+							<Form.Label>Localização</Form.Label>
 							<Form.Control
 								type="text"
 								value={selectedEvent?.location || ""}
@@ -241,10 +241,10 @@ function StaffEvents() {
 						<Form.Group className="mb-3">
 							<Form.Check
 								type="checkbox"
-								label="Hidden from public"
-								checked={selectedEvent?.is_hidden || false}
+								label="Visível ao público"
+								checked={selectedEvent?.is_visible || false}
 								onChange={e =>
-									setSelectedEvent(prev => (prev ? { ...prev, is_hidden: e.target.checked } : null))
+									setSelectedEvent(prev => (prev ? { ...prev, is_visible: e.target.checked } : null))
 								}
 							/>
 						</Form.Group>
@@ -262,12 +262,12 @@ function StaffEvents() {
 
 			<Modal show={showCreateModal} onHide={() => setShowCreateModal(false)}>
 				<Modal.Header closeButton>
-					<Modal.Title>Create New Event</Modal.Title>
+					<Modal.Title>Criar Novo Evento</Modal.Title>
 				</Modal.Header>
 				<Form onSubmit={handleCreateSubmit}>
 					<Modal.Body>
 						<Form.Group className="mb-3">
-							<Form.Label>Name</Form.Label>
+							<Form.Label>Nome</Form.Label>
 							<Form.Control
 								type="text"
 								value={selectedEvent?.name || ""}
@@ -278,7 +278,7 @@ function StaffEvents() {
 							/>
 						</Form.Group>
 						<Form.Group className="mb-3">
-							<Form.Label>Description</Form.Label>
+							<Form.Label>Descrição</Form.Label>
 							<Form.Control
 								as="textarea"
 								value={selectedEvent?.description || ""}
@@ -289,7 +289,7 @@ function StaffEvents() {
 							/>
 						</Form.Group>
 						<Form.Group className="mb-3">
-							<Form.Label>Date</Form.Label>
+							<Form.Label>Data</Form.Label>
 							<Form.Control
 								type="datetime-local"
 								value={selectedEvent?.date || ""}
@@ -300,7 +300,7 @@ function StaffEvents() {
 							/>
 						</Form.Group>
 						<Form.Group className="mb-3">
-							<Form.Label>Location</Form.Label>
+							<Form.Label>Localização</Form.Label>
 							<Form.Control
 								type="text"
 								value={selectedEvent?.location || ""}
@@ -313,20 +313,20 @@ function StaffEvents() {
 						<Form.Group className="mb-3">
 							<Form.Check
 								type="checkbox"
-								label="Hidden from public"
-								checked={selectedEvent?.is_hidden || false}
+								label="Visível ao público"
+								checked={selectedEvent?.is_visible || false}
 								onChange={e =>
-									setSelectedEvent(prev => (prev ? { ...prev, is_hidden: e.target.checked } : null))
+									setSelectedEvent(prev => (prev ? { ...prev, is_visible: e.target.checked } : null))
 								}
 							/>
 						</Form.Group>
 					</Modal.Body>
 					<Modal.Footer>
 						<Button variant="secondary" onClick={() => setShowCreateModal(false)}>
-							Cancel
+							Cancelar
 						</Button>
 						<Button variant="primary" type="submit">
-							Create Event
+							Criar Evento
 						</Button>
 					</Modal.Footer>
 				</Form>

@@ -25,7 +25,7 @@ function SimpleLoginManager() {
 	}
 
 	const goToStaff = () => {
-		navigate("/admin/events")
+		navigate("/staff/events")
 	}
 
 	return (
