@@ -6,13 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('database', '0002_event_is_visible'),
+        ("api", "0002_event_is_visible"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='event',
-            name='image',
+            model_name="event",
+            name="image",
             field=models.TextField(null=True),
         ),
     ]

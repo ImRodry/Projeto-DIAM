@@ -18,7 +18,7 @@ function SignupModal({ show, onHide }: Props) {
 
 	const handleSubmit = async (e: FormEvent) => {
 		e.preventDefault()
-		const response = await fetchWithCSRF("http://localhost:8000/database/api/signup/", {
+		const response = await fetchWithCSRF("http://localhost:8000/api/signup/", {
 				method: "POST",
 				credentials: "include",
 				headers: { "Content-Type": "application/json" },

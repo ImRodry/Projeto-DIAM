@@ -12,7 +12,7 @@ function Profile() {
 
 	useEffect(() => {
 		// Fetch purchase history
-		fetchWithCSRF("http://localhost:8000/database/api/user/purchases/", {
+		fetchWithCSRF("http://localhost:8000/api/user/purchases/", {
 			method: "GET",
 			credentials: "include",
 		})

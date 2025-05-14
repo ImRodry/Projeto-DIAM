@@ -8,7 +8,7 @@ function SimpleLoginManager() {
 	const { user, setUser } = useAuth()
 
 	const handleLogout = async () => {
-		const response = await fetchWithCSRF("http://localhost:8000/database/api/logout/", {
+		const response = await fetchWithCSRF("http://localhost:8000/api/logout/", {
 			method: "POST",
 			credentials: "include",
 		})

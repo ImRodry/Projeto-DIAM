@@ -9,7 +9,7 @@ function Home() {
 	const [loading, setLoading] = useState(true)
 
 	useEffect(() => {
-		fetch("http://localhost:8000/database/api/events/")
+		fetch("http://localhost:8000/api/events/")
 			.then(res => res.json())
 			.then(data => setEvents(data))
 			.finally(() => setLoading(false))

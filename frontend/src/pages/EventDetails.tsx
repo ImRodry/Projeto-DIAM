@@ -29,7 +29,7 @@ function EventDetails() {
 	}
 
 	useEffect(() => {
-		fetch(`http://localhost:8000/database/api/events/${id}/`)
+		fetch(`http://localhost:8000/api/events/${id}/`)
 			.then(res => res.json())
 			.then(data => setEvent(data))
 			.catch(err => console.error("Failed to load event", err))

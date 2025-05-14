@@ -16,7 +16,7 @@ function StaffEvents() {
 
 	const fetchEvents = async () => {
 		try {
-			const response = await fetchWithCSRF("http://localhost:8000/database/api/events/", {
+			const response = await fetchWithCSRF("http://localhost:8000/api/events/", {
 				credentials: "include",
 			})
 			if (!response.ok) throw new Error("Failed to fetch events")
@@ -49,7 +49,7 @@ function StaffEvents() {
 		if (!confirm("Are you sure you want to delete this event?")) return
 
 		try {
-			const response = await fetchWithCSRF(`http://localhost:8000/database/api/events/${eventId}/`, {
+			const response = await fetchWithCSRF(`http://localhost:8000/api/events/${eventId}/`, {
 				method: "DELETE",
 				credentials: "include",
 			})
@@ -64,7 +64,7 @@ function StaffEvents() {
 		const formData = new FormData()
 		formData.append("image", imageFile)
 
-		const response = await fetchWithCSRF("http://localhost:8000/database/api/upload/", {
+		const response = await fetchWithCSRF("http://localhost:8000/api/upload/", {
 			method: "POST",
 			body: formData,
 			credentials: "include",
@@ -91,7 +91,7 @@ function StaffEvents() {
 				delete selectedEvent.imageFile
 			}
 
-			const response = await fetchWithCSRF("http://localhost:8000/database/api/events/", {
+			const response = await fetchWithCSRF("http://localhost:8000/api/events/", {
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
 				credentials: "include",
@@ -120,7 +120,7 @@ function StaffEvents() {
 				delete selectedEvent.imageFile
 			}
 
-			const response = await fetchWithCSRF(`http://localhost:8000/database/api/events/${selectedEvent.id}/`, {
+			const response = await fetchWithCSRF(`http://localhost:8000/api/events/${selectedEvent.id}/`, {
 				method: "PATCH",
 				headers: { "Content-Type": "application/json" },
 				credentials: "include",

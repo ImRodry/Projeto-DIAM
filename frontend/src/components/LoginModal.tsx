@@ -16,7 +16,7 @@ function LoginModal({ show, onHide, onShowSignup }: Props): ReactNode {
 
 	const handleSubmit = async (e: FormEvent) => {
 		e.preventDefault()
-		const response = await fetchWithCSRF("http://localhost:8000/database/api/login/", {
+		const response = await fetchWithCSRF("http://localhost:8000/api/login/", {
 				method: "POST",
 				credentials: "include",
 				headers: { "Content-Type": "application/json" },

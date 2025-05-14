@@ -60,7 +60,7 @@ function EditProfile() {
 			}),
 		}
 
-		const res = await fetchWithCSRF("http://localhost:8000/database/api/user/", {
+		const res = await fetchWithCSRF("http://localhost:8000/api/user/", {
 				method: "PATCH",
 				headers: { "Content-Type": "application/json" },
 				credentials: "include",

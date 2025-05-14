@@ -1,5 +1,5 @@
 import { useState, useRef, type ChangeEvent } from "react"
-import { fetchWithCSRF } from "../utils";
+import { fetchWithCSRF } from "../utils"
 
 function ImageUploader() {
 	const [imageUrl, setImageUrl] = useState<string | null>(null)
@@ -50,7 +50,7 @@ function ImageUploader() {
 			setIsUploading(true)
 			setUploadStatus({ message: "Uploading...", isError: false })
 
-			const response = await fetchWithCSRF("http://localhost:8000/database/api/upload/", {
+			const response = await fetchWithCSRF("http://localhost:8000/api/upload/", {
 				method: "POST",
 				body: formData,
 				credentials: "include",
