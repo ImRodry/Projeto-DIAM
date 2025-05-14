@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react"
-import { Table, Button, Modal, Form, Alert, Spinner } from "react-bootstrap"
-import { useAuth } from "../contexts/AuthContext"
-import { fetchWithCSRF, type Event } from "../utils"
+import { Table, Button, Modal, Alert, Spinner } from "react-bootstrap"
 import { useNavigate } from "react-router"
+import { useAuth } from "../contexts/AuthContext"
+import EventForm from "../components/EventModal"
+import { fetchWithCSRF, type Event } from "../utils"
 
 function StaffEvents() {
 	const navigate = useNavigate()
@@ -101,7 +102,6 @@ function StaffEvents() {
 		<div>
 			<h1>Administração de Eventos</h1>
 			{error && <Alert variant="danger">{error}</Alert>}
-
 			<Button
 				variant="primary"
 				className="mb-3"
@@ -112,8 +112,8 @@ function StaffEvents() {
 						description: "",
 						date: "",
 						location: "",
-						latitude: 39.123,
-						longitude: -9.123,
+						latitude: 0.0,
+						longitude: 0.0,
 						is_visible: false,
 						tickets_sold: 0,
 					})
@@ -122,7 +122,6 @@ function StaffEvents() {
 			>
 				Criar Novo Evento
 			</Button>
-
 			<Table striped bordered hover>
 				<thead>
 					<tr>
@@ -161,153 +160,33 @@ function StaffEvents() {
 					))}
 				</tbody>
 			</Table>
-
 			<Modal show={showEditModal} onHide={() => setShowEditModal(false)}>
 				<Modal.Header closeButton>
 					<Modal.Title>Editar Evento</Modal.Title>
 				</Modal.Header>
-				<Form onSubmit={handleEditSubmit}>
-					<Modal.Body>
-						<Form.Group className="mb-3">
-							<Form.Label>Nome</Form.Label>
-							<Form.Control
-								type="text"
-								value={selectedEvent?.name || ""}
-								onChange={e =>
-									setSelectedEvent(prev => (prev ? { ...prev, name: e.target.value } : null))
-								}
-								required
-							/>
-						</Form.Group>
-						<Form.Group className="mb-3">
-							<Form.Label>Descrição</Form.Label>
-							<Form.Control
-								as="textarea"
-								value={selectedEvent?.description || ""}
-								onChange={e =>
-									setSelectedEvent(prev => (prev ? { ...prev, description: e.target.value } : null))
-								}
-								required
-							/>
-						</Form.Group>
-						<Form.Group className="mb-3">
-							<Form.Label>Data</Form.Label>
-							<Form.Control
-								type="datetime-local"
-								value={
-									selectedEvent?.date ? new Date(selectedEvent.date).toISOString().slice(0, 16) : ""
-								}
-								onChange={e =>
-									setSelectedEvent(prev => (prev ? { ...prev, date: e.target.value } : null))
-								}
-								required
-							/>
-						</Form.Group>
-						<Form.Group className="mb-3">
-							<Form.Label>Localização</Form.Label>
-							<Form.Control
-								type="text"
-								value={selectedEvent?.location || ""}
-								onChange={e =>
-									setSelectedEvent(prev => (prev ? { ...prev, location: e.target.value } : null))
-								}
-								required
-							/>
-						</Form.Group>
-						<Form.Group className="mb-3">
-							<Form.Check
-								type="checkbox"
-								label="Visível ao público"
-								id="is_visible"
-								checked={selectedEvent?.is_visible || false}
-								onChange={e =>
-									setSelectedEvent(prev => (prev ? { ...prev, is_visible: e.target.checked } : null))
-								}
-							/>
-						</Form.Group>
-					</Modal.Body>
-					<Modal.Footer>
-						<Button variant="secondary" onClick={() => setShowEditModal(false)}>
-							Cancelar
-						</Button>
-						<Button variant="primary" type="submit">
-							Guardar Alterações
-						</Button>
-					</Modal.Footer>
-				</Form>
+				<EventForm
+					event={selectedEvent}
+					setEvent={setSelectedEvent}
+					onSubmit={handleEditSubmit}
+					onCancel={() => {
+						setShowEditModal(false)
+						setSelectedEvent(null)
+					}}
+				/>
 			</Modal>
-
 			<Modal show={showCreateModal} onHide={() => setShowCreateModal(false)}>
 				<Modal.Header closeButton>
 					<Modal.Title>Criar Novo Evento</Modal.Title>
 				</Modal.Header>
-				<Form onSubmit={handleCreateSubmit}>
-					<Modal.Body>
-						<Form.Group className="mb-3">
-							<Form.Label>Nome</Form.Label>
-							<Form.Control
-								type="text"
-								value={selectedEvent?.name || ""}
-								onChange={e =>
-									setSelectedEvent(prev => (prev ? { ...prev, name: e.target.value } : null))
-								}
-								required
-							/>
-						</Form.Group>
-						<Form.Group className="mb-3">
-							<Form.Label>Descrição</Form.Label>
-							<Form.Control
-								as="textarea"
-								value={selectedEvent?.description || ""}
-								onChange={e =>
-									setSelectedEvent(prev => (prev ? { ...prev, description: e.target.value } : null))
-								}
-								required
-							/>
-						</Form.Group>
-						<Form.Group className="mb-3">
-							<Form.Label>Data</Form.Label>
-							<Form.Control
-								type="datetime-local"
-								value={selectedEvent?.date || ""}
-								onChange={e =>
-									setSelectedEvent(prev => (prev ? { ...prev, date: e.target.value } : null))
-								}
-								required
-							/>
-						</Form.Group>
-						<Form.Group className="mb-3">
-							<Form.Label>Localização</Form.Label>
-							<Form.Control
-								type="text"
-								value={selectedEvent?.location || ""}
-								onChange={e =>
-									setSelectedEvent(prev => (prev ? { ...prev, location: e.target.value } : null))
-								}
-								required
-							/>
-						</Form.Group>
-						<Form.Group className="mb-3">
-							<Form.Check
-								type="checkbox"
-								label="Visível ao público"
-								id="is_visible"
-								checked={selectedEvent?.is_visible || false}
-								onChange={e =>
-									setSelectedEvent(prev => (prev ? { ...prev, is_visible: e.target.checked } : null))
-								}
-							/>
-						</Form.Group>
-					</Modal.Body>
-					<Modal.Footer>
-						<Button variant="secondary" onClick={() => setShowCreateModal(false)}>
-							Cancelar
-						</Button>
-						<Button variant="primary" type="submit">
-							Criar Evento
-						</Button>
-					</Modal.Footer>
-				</Form>
+				<EventForm
+					event={selectedEvent}
+					setEvent={setSelectedEvent}
+					onSubmit={handleCreateSubmit}
+					onCancel={() => {
+						setShowCreateModal(false)
+						setSelectedEvent(null)
+					}}
+				/>
 			</Modal>
 		</div>
 	)
