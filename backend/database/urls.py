@@ -15,4 +15,5 @@ urlpatterns = [
         "api/events/<int:pk>/ticket-types/<int:ticket_type_pk>/",
         views.TicketTypeSingleView.as_view(),
     ),
+    path("api/purchases/", views.PurchasesView.as_view()),
 ]

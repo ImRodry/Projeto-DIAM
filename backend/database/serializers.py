@@ -61,7 +61,6 @@ class TicketTypeSerializer(serializers.ModelSerializer):
         model = TicketType
         fields = ["id", "name", "price", "quantity_available"]
 
-
 class EventSerializer(serializers.ModelSerializer):
     ticket_types = TicketTypeSerializer(many=True, required=False)
 
@@ -99,3 +98,34 @@ class EventSerializer(serializers.ModelSerializer):
                 TicketType.objects.create(event=instance, **ticket_data)
 
         return instance
+
+
+class TicketSerializer(serializers.ModelSerializer):
+    ticket_type = serializers.PrimaryKeyRelatedField(queryset=TicketType.objects.all())
+
+    class Meta:
+        model = Ticket
+        fields = [
+            "id",
+            "ticket_type",
+            "purchase_date",
+            "quantity",
+            "rating",
+            "rating_comment",
+        ]
+        read_only_fields = ["id", "user", "purchase_date", "rating", "rating_comment"]
+
+    def validate(self, data: dict):
+        ticket_type: TicketType = data.get("ticket_type")
+        quantity: int = data.get("quantity")
+
+        if ticket_type and quantity:
+            tickets_sold = sum(t.quantity for t in ticket_type.tickets.all())
+            remaining = ticket_type.quantity_available - tickets_sold
+
+            if quantity > remaining:
+                raise serializers.ValidationError(
+                    f"Only {remaining} tickets remaining for this ticket type."
+                )
+
+        return data

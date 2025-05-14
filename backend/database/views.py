@@ -8,9 +8,14 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.request import Request
 from rest_framework.views import APIView
-from rest_framework import status
-from .serializers import UserSerializer, EventSerializer, TicketTypeSerializer
-from .models import Event, TicketType
+from rest_framework import status, generics
+from .serializers import (
+    UserSerializer,
+    EventSerializer,
+    TicketTypeSerializer,
+    TicketSerializer,
+)
+from .models import Event, TicketType, Ticket
 
 # Create your views here.
 
@@ -168,3 +173,26 @@ class TicketTypeSingleView(APIView):
         ticket_type = self.get_object(pk)
         ticket_type.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class PurchasesView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        tickets = Ticket.objects.filter(user=request.user)
+        serializer = TicketSerializer(tickets, many=True)
+        return JsonResponse(serializer.data, status=status.HTTP_200_OK)
+
+    def post(self, request):
+        serializer = TicketSerializer(data=request.data)
+        if serializer.is_valid():
+            ticket = Ticket.objects.create(
+                user=request.user,
+                ticket_type=serializer.validated_data["ticket_type"],
+                quantity=serializer.validated_data["quantity"],
+            )
+            return Response(
+                TicketSerializer(ticket).data, status=status.HTTP_201_CREATED
+            )
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
