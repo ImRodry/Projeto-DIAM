@@ -65,6 +65,7 @@ REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": [
         "rest_framework.authentication.SessionAuthentication",
     ],
+    "EXCEPTION_HANDLER": "backend.exceptions.custom_exception_handler",
 }
 
 ROOT_URLCONF = "backend.urls"

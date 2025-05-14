@@ -23,7 +23,12 @@ function LoginModal({ show, onHide, onShowSignup }: Props): ReactNode {
 				body: JSON.stringify({ username, password }),
 			}),
 			responseData: APIError | User = await response.json()
-		if ("error" in responseData) throw new Error(responseData.error)
+		if ("errors" in responseData)
+			throw new Error(
+				Object.entries(responseData.errors)
+					.map(([key, value]) => `${key}: ${value.join(", ")}`)
+					.join("\n")
+			)
 
 		setUser(responseData)
 		onHide()

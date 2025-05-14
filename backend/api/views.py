@@ -8,7 +8,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.request import Request
 from rest_framework.views import APIView
-from rest_framework import status, generics
+from rest_framework import status
 from .serializers import (
     UserSerializer,
     EventSerializer,
@@ -192,25 +192,17 @@ class PurchasesView(APIView):
             return Response(
                 TicketSerializer(ticket).data, status=status.HTTP_201_CREATED
             )
+        raise ValidationError(serializer.errors)
 
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    
+
 class UploadImageView(APIView):
     def post(self, request, *args, **kwargs):
-
-        if request.FILES and request.FILES.get('image'):
-            uploaded_file = request.FILES['image']
-
-            # Create a unique filename
+        if request.FILES and request.FILES.get("image"):
+            uploaded_file = request.FILES["image"]
             filename = f"upload_{uploaded_file.name}"
-
-            # Save to images directory
-            fs = FileSystemStorage(location='images/')
+            fs = FileSystemStorage(location="images/")
             saved_path = fs.save(filename, uploaded_file)
-
-            return JsonResponse({
-                'status': 'success',
-                'image_path': f'/images/{saved_path}'
-            })
-
-        return JsonResponse({'status': 'error', 'message': 'Invalid request'}, status=400)
+            return JsonResponse({"image_path": f"/images/{saved_path}"})
+        return JsonResponse(
+            {"message": "Invalid request"}, status=status.HTTP_400_BAD_REQUEST
+        )

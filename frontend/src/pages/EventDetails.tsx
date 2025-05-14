@@ -1,10 +1,10 @@
 import { useRef, useEffect, useState } from "react"
 import { useParams } from "react-router"
-import { Card, Button, Spinner } from "react-bootstrap"
+import { Card, Button, Spinner, ListGroup } from "react-bootstrap"
 import LoginModal from "../components/LoginModal.tsx"
 import SignupModal from "../components/SignupModal.tsx"
 import { useAuth } from "../contexts/AuthContext"
-import { type EditableEvent } from "../utils"
+import { fetchWithCSRF, type APIError, type EditableEvent, type Ticket, type TicketPostData } from "../utils"
 
 function EventDetails() {
 	const { id } = useParams<{ id: string }>()
@@ -13,6 +13,16 @@ function EventDetails() {
 	const [showSignup, setShowSignup] = useState(false)
 	const [loading, setLoading] = useState(true)
 	const { user } = useAuth()
+
+	const [ticketQuantity, setTicketQuantity] = useState(1)
+	const [selectedTicketTypeId, setSelectedTicketTypeId] = useState<number | null>(null)
+
+	const [showEvaluationForm, setShowEvaluationForm] = useState(false)
+	const [showEvaluations, setShowEvaluations] = useState(false)
+	const [selectedStars, setSelectedStars] = useState<number>(0)
+	const [evaluations, setEvaluations] = useState<{ stars: number; comment: string }[]>([])
+	const evaluationFormRef = useRef<HTMLDivElement | null>(null)
+	const evaluationsRef = useRef<HTMLDivElement | null>(null)
 
 	const loginModalProps = {
 		show: showLogin,
@@ -36,22 +46,38 @@ function EventDetails() {
 			.finally(() => setLoading(false))
 	}, [id])
 
-	const [ticketQuantity, setTicketQuantity] = useState(1)
-
-	const handleBuyClick = () => {
+	const handleBuyClick = async () => {
 		if (!user) {
 			setShowLogin(true)
-		} else {
-			// TODO Redirect to purchase logic, or show ticket modal, etc.
+			return
 		}
-	}
 
-	const [showEvaluationForm, setShowEvaluationForm] = useState(false)
-	const [showEvaluations, setShowEvaluations] = useState(false)
-	const [selectedStars, setSelectedStars] = useState<number>(0)
-	const [evaluations, setEvaluations] = useState<{ stars: number; comment: string }[]>([])
-	const evaluationFormRef = useRef<HTMLDivElement | null>(null)
-	const evaluationsRef = useRef<HTMLDivElement | null>(null)
+		if (!selectedTicketTypeId) {
+			alert("Por favor selecione um tipo de bilhete.")
+			return
+		}
+
+		const purchaseData: TicketPostData = {
+			ticket_type: selectedTicketTypeId,
+			quantity: ticketQuantity,
+		}
+
+		const response = await fetchWithCSRF("http://localhost:8000/api/purchases/", {
+				method: "POST",
+				body: JSON.stringify(purchaseData),
+				credentials: "include",
+				headers: {
+					"Content-Type": "application/json",
+				},
+			}),
+			responseData: APIError | Ticket = await response.json()
+		if ("errors" in responseData)
+			throw new Error(
+				Object.entries(responseData.errors)
+					.map(([key, value]) => `${key}: ${value.join(", ")}`)
+					.join("\n")
+			)
+	}
 
 	const handleEvaluationSubmit = (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault()
@@ -71,19 +97,20 @@ function EventDetails() {
 
 	if (loading) return <Spinner animation="border" />
 	if (!event) return <p>Evento não encontrado.</p>
+
 	const isPastEvent = Date.parse(event.date) <= Date.now()
 
 	return (
 		<div>
 			<LoginModal {...loginModalProps} />
 			<SignupModal {...signupModalProps} />
-			<Card className="mt-4">
+			<Card className="mt-4 mb-4">
 				{event.image && (
 					<Card.Img
 						variant="top"
 						src={"http://localhost:8000" + event.image}
 						alt={event.name}
-						style={{ objectFit: "cover", maxHeight: "300px" }}
+						style={{ objectFit: "cover" }}
 					/>
 				)}
 				<Card.Body>
@@ -103,12 +130,43 @@ function EventDetails() {
 						<strong>Data:</strong>{" "}
 						{new Date(event.date).toLocaleString("pt", { dateStyle: "short", timeStyle: "short" })}
 					</Card.Text>
-					{/* <Card.Text>
-						<strong>Preço do bilhete:</strong> {event.ticket_price.toFixed(2)} €
-					</Card.Text> */}
+					<div className="card-text">
+						<strong>Tipos de Bilhete:</strong>
+						<ListGroup variant="flush">
+							{event.ticket_types && event.ticket_types.length > 0 ? (
+								event.ticket_types.map((type, index) => (
+									<ListGroup.Item key={index} className="py-1 px-2">
+										<div>
+											<strong>Nome:</strong> {type.name}
+											<strong>, Preço:</strong> €{type.price}
+										</div>
+									</ListGroup.Item>
+								))
+							) : (
+								<ListGroup.Item className="py-1 px-2">
+									Nenhum tipo de bilhete disponível.
+								</ListGroup.Item>
+							)}
+						</ListGroup>
+					</div>
 					<div className="d-flex flex-wrap gap-2 mt-3">
 						{!isPastEvent && (
-							<div className="d-flex align-items-center gap-2">
+							<>
+								<select
+									className="form-select"
+									style={{ width: "200px" }}
+									value={selectedTicketTypeId ?? ""}
+									onChange={e => setSelectedTicketTypeId(Number(e.target.value))}
+								>
+									<option value="" disabled>
+										Selecione um tipo de bilhete
+									</option>
+									{event.ticket_types.map((type, index) => (
+										<option key={index} value={type.id}>
+											{type.name} – €{type.price}
+										</option>
+									))}
+								</select>
 								<input
 									type="number"
 									min={1}
@@ -120,51 +178,56 @@ function EventDetails() {
 								<Button variant="primary" onClick={handleBuyClick}>
 									Comprar
 								</Button>
-							</div>
+							</>
 						)}
 						{isPastEvent && (
-							<Button
-								variant="warning"
-								onClick={() => {
-									setShowEvaluationForm(prev => {
-										const next = !prev
-										if (next) {
-											setShowEvaluations(false) // Auto-collapse other
-											setTimeout(
-												() => evaluationFormRef.current?.scrollIntoView({ behavior: "smooth" }),
-												100
-											)
-										}
-										return next
-									})
-								}}
-							>
-								Avaliar Evento
-							</Button>
-						)}
-						{isPastEvent && (
-							<Button
-								variant="secondary"
-								onClick={() => {
-									setShowEvaluations(prev => {
-										const next = !prev
-										if (next) {
-											setShowEvaluationForm(false) // Auto-collapse other
-											setTimeout(
-												() => evaluationsRef.current?.scrollIntoView({ behavior: "smooth" }),
-												100
-											)
-										}
-										return next
-									})
-								}}
-							>
-								Ver Avaliações
-							</Button>
+							<>
+								<Button
+									variant="warning"
+									onClick={() => {
+										setShowEvaluationForm(prev => {
+											const next = !prev
+											if (next) {
+												setShowEvaluations(false)
+												setTimeout(
+													() =>
+														evaluationFormRef.current?.scrollIntoView({
+															behavior: "smooth",
+														}),
+													100
+												)
+											}
+											return next
+										})
+									}}
+								>
+									Avaliar Evento
+								</Button>
+								<Button
+									variant="secondary"
+									onClick={() => {
+										setShowEvaluations(prev => {
+											const next = !prev
+											if (next) {
+												setShowEvaluationForm(false)
+												setTimeout(
+													() =>
+														evaluationsRef.current?.scrollIntoView({ behavior: "smooth" }),
+													100
+												)
+											}
+											return next
+										})
+									}}
+								>
+									Ver Avaliações
+								</Button>
+							</>
 						)}
 					</div>
 				</Card.Body>
 			</Card>
+
 			{showEvaluationForm && (
 				<div ref={evaluationFormRef} className="mb-4 mt-4">
 					<form onSubmit={handleEvaluationSubmit} className="mt-4">
@@ -172,16 +235,14 @@ function EventDetails() {
 							<label className="form-label">Estrelas:</label>
 							<div>
 								{[1, 2, 3, 4, 5].map(star => {
-									let colorClass = "btn-outline-secondary" // default (unselected)
-
+									let colorClass = "btn-outline-secondary"
 									if (selectedStars >= star) {
-										if (selectedStars <= 2) {
-											colorClass = "btn-danger" // red
-										} else if (selectedStars === 3) {
-											colorClass = "btn-warning" // grey
-										} else {
-											colorClass = "btn-success" // green
-										}
+										colorClass =
+											selectedStars <= 2
+												? "btn-danger"
+												: selectedStars === 3
+												? "btn-warning"
+												: "btn-success"
 									}
 									return (
 										<button
@@ -208,6 +269,7 @@ function EventDetails() {
 					</form>
 				</div>
 			)}
+
 			{showEvaluations && (
 				<div ref={evaluationsRef} className="mb-4 mt-4">
 					<div className="mt-4">

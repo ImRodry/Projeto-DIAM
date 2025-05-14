@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react"
 import { Button, Card, Table, Spinner, Alert } from "react-bootstrap"
 import { useNavigate } from "react-router"
-import { useAuth } from "../contexts/AuthContext" // make sure the path is correct
-import { fetchWithCSRF, type Ticket } from "../utils"
+import { useAuth } from "../contexts/AuthContext"
+import { fetchWithCSRF, type APIError, type Ticket } from "../utils"
 
 function Profile() {
 	const [purchases, setPurchases] = useState<Ticket[]>([])
@@ -11,15 +11,19 @@ function Profile() {
 	const navigate = useNavigate()
 
 	useEffect(() => {
-		// Fetch purchase history
 		fetchWithCSRF("http://localhost:8000/api/user/purchases/", {
 			method: "GET",
 			credentials: "include",
 		})
 			.then(async res => {
-				if (!res.ok) throw new Error()
-				const data = await res.json()
-				setPurchases(data)
+				const responseData: APIError | Ticket[] = await res.json()
+				if ("errors" in responseData)
+					throw new Error(
+						Object.entries(responseData.errors)
+							.map(([key, value]) => `${key}: ${value.join(", ")}`)
+							.join("\n")
+					)
+				setPurchases(responseData)
 			})
 			.catch(() => {
 				setPurchases([])
@@ -70,10 +74,16 @@ function Profile() {
 						purchases.map((purchase: any) => (
 							<tr key={purchase.id}>
 								<td>{purchase.id}</td>
-								<td>{purchase.event_name}</td>
-								<td>{purchase.date}</td>
-								<td>{purchase.ticket_amount}</td>
-								<td>{purchase.price}</td>
+								<td>{purchase.event_name}</td> {/* Assuming event_name is part of the API response */}
+								<td>
+									{new Date(purchase.purchase_date).toLocaleString("pt", {
+										dateStyle: "short",
+										timeStyle: "short",
+									})}
+								</td>
+								<td>{purchase.quantity}</td>
+								<td>{purchase.ticket_type.price} €</td>{" "}
+								{/* Assuming price is part of the API response */}
 							</tr>
 						))
 					) : (

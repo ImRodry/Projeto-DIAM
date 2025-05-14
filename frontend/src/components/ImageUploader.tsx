@@ -1,5 +1,5 @@
 import { useState, useRef, type ChangeEvent } from "react"
-import { fetchWithCSRF } from "../utils"
+import { fetchWithCSRF, type APIError } from "../utils"
 
 function ImageUploader() {
 	const [imageUrl, setImageUrl] = useState<string | null>(null)
@@ -51,15 +51,17 @@ function ImageUploader() {
 			setUploadStatus({ message: "Uploading...", isError: false })
 
 			const response = await fetchWithCSRF("http://localhost:8000/api/upload/", {
-				method: "POST",
-				body: formData,
-				credentials: "include",
-			})
-
-			if (!response.ok) {
-				const errorData = await response.json().catch(() => ({}))
-				throw new Error(errorData.message || "Upload failed")
-			}
+					method: "POST",
+					body: formData,
+					credentials: "include",
+				}),
+				responseData: APIError | { image_path: string } = await response.json()
+			if ("errors" in responseData)
+				throw new Error(
+					Object.entries(responseData.errors)
+						.map(([key, value]) => `${key}: ${value.join(", ")}`)
+						.join("\n")
+				)
 
 			const data = await response.json()
 			setUploadStatus({

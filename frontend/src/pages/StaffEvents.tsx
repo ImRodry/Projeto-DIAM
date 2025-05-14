@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react"
-import { Table, Button, Modal, Alert, Spinner } from "react-bootstrap"
+import { Table, Button, Modal, Alert, Spinner, ListGroup } from "react-bootstrap"
 import { useNavigate } from "react-router"
 import { useAuth } from "../contexts/AuthContext"
 import EventForm from "../components/EventForm"
-import { fetchWithCSRF, type EditableEvent, type Event, type TicketType } from "../utils"
+import { fetchWithCSRF, type APIError, type EditableEvent, type Event } from "../utils"
 
 function StaffEvents() {
 	const navigate = useNavigate()
@@ -15,16 +15,17 @@ function StaffEvents() {
 	const { user } = useAuth()
 
 	const fetchEvents = async () => {
-		try {
-			const response = await fetchWithCSRF("http://localhost:8000/api/events/", {
+		const response = await fetchWithCSRF("http://localhost:8000/api/events/", {
 				credentials: "include",
-			})
-			if (!response.ok) throw new Error("Failed to fetch events")
-			const data = await response.json()
-			setEvents(data)
-		} catch (err) {
-			setError("Failed to load events")
-		}
+			}),
+			responseData: APIError | Event[] = await response.json()
+		if ("errors" in responseData)
+			throw new Error(
+				Object.entries(responseData.errors)
+					.map(([key, value]) => `${key}: ${value.join(", ")}`)
+					.join("\n")
+			)
+		setEvents(responseData)
 	}
 
 	useEffect(() => {
@@ -40,12 +41,7 @@ function StaffEvents() {
 		setShowEditModal(true)
 	}
 
-	const handleDelete = async (eventId: number, ticketTypes: TicketType[]) => {
-		if (ticketTypes.some(type => type.tickets.length > 0)) {
-			alert("Cannot delete event with sold tickets")
-			return
-		}
-
+	const handleDelete = async (eventId: number) => {
 		if (!confirm("Are you sure you want to delete this event?")) return
 
 		try {
@@ -53,7 +49,14 @@ function StaffEvents() {
 				method: "DELETE",
 				credentials: "include",
 			})
-			if (!response.ok) throw new Error("Failed to delete event")
+			if (!response.ok) {
+				const responseData: APIError = await response.json()
+				throw new Error(
+					Object.entries(responseData.errors)
+						.map(([key, value]) => `${key}: ${value.join(", ")}`)
+						.join("\n")
+				)
+			}
 			fetchEvents()
 		} catch (err) {
 			setError("Failed to delete event")
@@ -65,18 +68,19 @@ function StaffEvents() {
 		formData.append("image", imageFile)
 
 		const response = await fetchWithCSRF("http://localhost:8000/api/upload/", {
-			method: "POST",
-			body: formData,
-			credentials: "include",
-		})
+				method: "POST",
+				body: formData,
+				credentials: "include",
+			}),
+			responseData: APIError | { image_path: string } = await response.json()
+		if ("errors" in responseData)
+			throw new Error(
+				Object.entries(responseData.errors)
+					.map(([key, value]) => `${key}: ${value.join(", ")}`)
+					.join("\n")
+			)
 
-		if (!response.ok) {
-			const errorData = await response.json().catch(() => ({}))
-			throw new Error(errorData.message || "Image upload failed")
-		}
-
-		const data = await response.json()
-		return data.image_url || data.image_path
+		return responseData.image_path
 	}
 
 	const handleCreateSubmit = async (e: React.FormEvent) => {
@@ -92,13 +96,18 @@ function StaffEvents() {
 			}
 
 			const response = await fetchWithCSRF("http://localhost:8000/api/events/", {
-				method: "POST",
-				headers: { "Content-Type": "application/json" },
-				credentials: "include",
-				body: JSON.stringify(selectedEvent),
-			})
-
-			if (!response.ok) throw new Error("Failed to create event")
+					method: "POST",
+					headers: { "Content-Type": "application/json" },
+					credentials: "include",
+					body: JSON.stringify(selectedEvent),
+				}),
+				responseData: APIError | Event[] = await response.json()
+			if ("errors" in responseData)
+				throw new Error(
+					Object.entries(responseData.errors)
+						.map(([key, value]) => `${key}: ${value.join(", ")}`)
+						.join("\n")
+				)
 
 			setShowCreateModal(false)
 			setSelectedEvent(null)
@@ -121,14 +130,18 @@ function StaffEvents() {
 			}
 
 			const response = await fetchWithCSRF(`http://localhost:8000/api/events/${selectedEvent.id}/`, {
-				method: "PATCH",
-				headers: { "Content-Type": "application/json" },
-				credentials: "include",
-				body: JSON.stringify(selectedEvent),
-			})
-
-			if (!response.ok) throw new Error("Failed to update event")
-
+					method: "PATCH",
+					headers: { "Content-Type": "application/json" },
+					credentials: "include",
+					body: JSON.stringify(selectedEvent),
+				}),
+				responseData: APIError | Event = await response.json()
+			if ("errors" in responseData)
+				throw new Error(
+					Object.entries(responseData.errors)
+						.map(([key, value]) => `${key}: ${value.join(", ")}`)
+						.join("\n")
+				)
 			setShowEditModal(false)
 			setSelectedEvent(null)
 			fetchEvents()
@@ -155,7 +168,15 @@ function StaffEvents() {
 						latitude: 0.0,
 						longitude: 0.0,
 						is_visible: false,
-						ticket_types: [],
+						ticket_types: [
+							{
+								id: 0,
+								name: "",
+								price: 0,
+								quantity_available: 0,
+								tickets: [],
+							},
+						],
 					})
 					setShowCreateModal(true)
 				}}
@@ -169,7 +190,7 @@ function StaffEvents() {
 						<th>Data</th>
 						<th>Localização</th>
 						<th>Visível</th>
-						<th>Tipo de Bilhete</th>
+						<th>Tipos de Bilhete</th>
 						<th>Ações</th>
 					</tr>
 				</thead>
@@ -193,17 +214,24 @@ function StaffEvents() {
 								</a>
 							</td>
 							<td>{event.is_visible ? "Sim" : "Não"}</td>
-							<td>{event.ticket_types.map(type => type.name).join(", ")}</td>
+							<td>
+								<ListGroup variant="flush">
+									{event.ticket_types.map((type, index) => (
+										<ListGroup.Item key={index} className="py-1 px-2">
+											<div>
+												<strong>Nome:</strong> {type.name}
+												<strong>, Preço:</strong> €{type.price}
+												<strong>, Quantidade:</strong> {type.quantity_available}
+											</div>
+										</ListGroup.Item>
+									))}
+								</ListGroup>
+							</td>
 							<td>
 								<Button variant="warning" size="sm" className="me-2" onClick={() => handleEdit(event)}>
 									Editar
 								</Button>
-								<Button
-									variant="danger"
-									size="sm"
-									onClick={() => handleDelete(event.id, event.ticket_types)}
-									disabled={event.ticket_types.some(type => type.tickets.length > 0)}
-								>
+								<Button variant="danger" size="sm" onClick={() => handleDelete(event.id)}>
 									Apagar
 								</Button>
 							</td>

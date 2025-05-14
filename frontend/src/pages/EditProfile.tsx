@@ -67,11 +67,13 @@ function EditProfile() {
 				body: JSON.stringify(payload),
 			}),
 			responseData: User | APIError = await res.json()
-
-		if ("error" in responseData) {
-			console.error(responseData)
-			alert(`Update failed: ${responseData.error}`)
-		} else {
+		if ("errors" in responseData)
+			throw new Error(
+				Object.entries(responseData.errors)
+					.map(([key, value]) => `${key}: ${value.join(", ")}`)
+					.join("\n")
+			)
+		else {
 			setUser(responseData)
 			navigate("/profile")
 		}

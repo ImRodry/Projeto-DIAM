@@ -9,16 +9,21 @@ function SimpleLoginManager() {
 
 	const handleLogout = async () => {
 		const response = await fetchWithCSRF("http://localhost:8000/api/logout/", {
-			method: "POST",
-			credentials: "include",
-		})
-		if (response.status === 204) {
+				method: "POST",
+				credentials: "include",
+			}),
+			responseData: APIError | { success: string } = await response.json()
+		if ("errors" in responseData)
+			throw new Error(
+				Object.entries(responseData.errors)
+					.map(([key, value]) => `${key}: ${value.join(", ")}`)
+					.join("\n")
+			)
+		else {
 			setUser(null)
 			navigate("/")
 			return
 		}
-		const responseData: APIError | { success: string } = await response.json()
-		if ("error" in responseData) throw new Error(responseData.error)
 	}
 
 	const goToProfile = () => {

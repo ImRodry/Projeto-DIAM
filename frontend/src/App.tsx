@@ -36,7 +36,7 @@ function AppContent() {
 				<Container>
 					<Navbar.Brand href="/">
 						<img
-							src="/images/favicon.ico"
+							src="https://aeiscte-iul.pt/wp-content/uploads/2024/10/cropped-Logos-Completos_Azul-192x192.png"
 							alt="Logo"
 							width="50"
 							height="50"

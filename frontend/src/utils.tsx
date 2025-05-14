@@ -17,7 +17,7 @@ export function fetchWithCSRF(url: string, options: RequestInit = {}): Promise<R
 }
 
 export interface APIError {
-	error: string
+	errors: Record<string, string[]>
 }
 
 export interface User {
@@ -47,12 +47,16 @@ export interface EditableEvent extends Event {
 }
 
 export interface TicketType {
-	event: Event
 	id: number
 	name: string
 	price: number
 	quantity_available: number
 	tickets: Ticket[]
+}
+
+export interface TicketPostData {
+	ticket_type: number
+	quantity: number
 }
 
 export interface Ticket {

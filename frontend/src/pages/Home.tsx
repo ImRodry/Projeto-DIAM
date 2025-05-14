@@ -12,6 +12,7 @@ function Home() {
 		fetch("http://localhost:8000/api/events/")
 			.then(res => res.json())
 			.then(data => setEvents(data))
+			.catch(err => console.error("Failed to load events", err))
 			.finally(() => setLoading(false))
 	}, [])
 
@@ -29,7 +30,7 @@ function Home() {
 						variant="top"
 						src={"http://localhost:8000" + event.image}
 						alt={event.name}
-						style={{ objectFit: "cover", maxHeight: "300px" }}
+						style={{ objectFit: "cover" }}
 					/>
 				)}
 				<Card.Body>
