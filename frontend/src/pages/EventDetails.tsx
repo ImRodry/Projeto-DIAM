@@ -58,7 +58,7 @@ function EventDetails() {
 		}
 
 		const purchaseData: TicketPostData = {
-			ticket_type: selectedTicketTypeId,
+			ticket_type_id: selectedTicketTypeId,
 			quantity: ticketQuantity,
 		}
 

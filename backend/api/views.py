@@ -131,16 +131,17 @@ class TicketTypeMultipleView(APIView):
         event = Event.objects.get(pk=event_id)
         ticket_types = event.ticket_types.all()
         serializer = TicketTypeSerializer(ticket_types, many=True)
-        # se isto der erro é porque falta o safe=False
-        return JsonResponse(serializer.data, status=status.HTTP_200_OK)
+        return JsonResponse(serializer.data, status=status.HTTP_200_OK, safe=False)
 
     def post(self, request: Request, event_id):
         event = Event.objects.get(pk=event_id)
         serializer = TicketTypeSerializer(data=request.data)
         if serializer.is_valid():
-            ticket_type = serializer.save(event=event)
+            serializer.save(event=event)
             return JsonResponse(
-                TicketTypeSerializer(ticket_type).data, status=status.HTTP_201_CREATED
+                serializer.data,
+                status=status.HTTP_201_CREATED,
+                safe=False,
             )
         return JsonResponse(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -155,16 +156,14 @@ class TicketTypeSingleView(APIView):
     def get(self, request: Request, event_id: int, pk: int):
         ticket_type = self.get_object(pk)
         serializer = TicketTypeSerializer(ticket_type)
-        return JsonResponse(serializer.data, status=status.HTTP_200_OK)
+        return JsonResponse(serializer.data, status=status.HTTP_200_OK, safe=False)
 
     def patch(self, request: Request, event_id: int, pk: int):
         ticket_type = self.get_object(pk)
         serializer = TicketTypeSerializer(ticket_type, data=request.data, partial=True)
         if serializer.is_valid():
-            ticket_type = serializer.save()
-            return JsonResponse(
-                TicketTypeSerializer(ticket_type).data, status=status.HTTP_200_OK
-            )
+            serializer.save()
+            return JsonResponse(serializer.data, status=status.HTTP_200_OK, safe=False)
         return JsonResponse(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request: Request, event_id: int, pk: int):
@@ -179,19 +178,13 @@ class PurchasesView(APIView):
     def get(self, request):
         tickets = Ticket.objects.filter(user=request.user)
         serializer = TicketSerializer(tickets, many=True)
-        return JsonResponse(serializer.data, status=status.HTTP_200_OK)
+        return JsonResponse(serializer.data, status=status.HTTP_200_OK, safe=False)
 
     def post(self, request):
         serializer = TicketSerializer(data=request.data)
         if serializer.is_valid():
-            ticket = Ticket.objects.create(
-                user=request.user,
-                ticket_type=serializer.validated_data["ticket_type"],
-                quantity=serializer.validated_data["quantity"],
-            )
-            return Response(
-                TicketSerializer(ticket).data, status=status.HTTP_201_CREATED
-            )
+            serializer.save(user=request.user)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
         raise ValidationError(serializer.errors)
 
 

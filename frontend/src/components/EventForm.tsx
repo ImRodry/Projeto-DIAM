@@ -1,9 +1,9 @@
 import { useState, useEffect } from "react"
 import { Button, Col, Form, Modal, Row } from "react-bootstrap"
-import { type EditableEvent, type Event } from "../utils"
+import { type EditableEvent } from "../utils"
 
 type EventFormProps = {
-	event: Event | null
+	event: EditableEvent | null
 	setEvent: React.Dispatch<React.SetStateAction<EditableEvent | null>>
 	onSubmit: (e: React.FormEvent) => void
 	onCancel: () => void

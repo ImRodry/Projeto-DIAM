@@ -42,11 +42,33 @@ export interface Event {
 	ticket_types: TicketType[]
 }
 
-export interface EditableEvent extends Event {
+export interface EditableEvent extends EventPostData {
 	imageFile?: File
 }
 
 export interface TicketType {
+	event: Event
+	id: number
+	name: string
+	price: number
+	quantity_available: number
+	tickets: Ticket[]
+}
+
+export interface EventPostData {
+	id: number
+	name: string
+	image: string
+	description: string
+	date: string
+	location: string
+	latitude: number
+	longitude: number
+	is_visible: boolean
+	ticket_types: TicketTypePostData[]
+}
+
+export interface TicketTypePostData {
 	id: number
 	name: string
 	price: number
@@ -55,7 +77,7 @@ export interface TicketType {
 }
 
 export interface TicketPostData {
-	ticket_type: number
+	ticket_type_id: number
 	quantity: number
 }
 

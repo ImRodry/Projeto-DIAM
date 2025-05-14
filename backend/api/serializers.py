@@ -5,7 +5,6 @@ from rest_framework.validators import UniqueValidator
 from .models import Event, TicketType, Ticket
 
 
-# Create your serializers here
 class UserSerializer(serializers.ModelSerializer):
     username = serializers.CharField(
         validators=[
@@ -56,10 +55,19 @@ class UserSerializer(serializers.ModelSerializer):
         return instance
 
 
+class EventSummarySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Event
+        fields = ["id", "name", "date", "location"]
+
+
 class TicketTypeSerializer(serializers.ModelSerializer):
+    event = EventSummarySerializer(read_only=True)
+
     class Meta:
         model = TicketType
-        fields = ["id", "name", "price", "quantity_available"]
+        fields = ["id", "name", "price", "quantity_available", "event"]
+
 
 class EventSerializer(serializers.ModelSerializer):
     ticket_types = TicketTypeSerializer(many=True, required=False)
@@ -102,13 +110,17 @@ class EventSerializer(serializers.ModelSerializer):
 
 
 class TicketSerializer(serializers.ModelSerializer):
-    ticket_type = serializers.PrimaryKeyRelatedField(queryset=TicketType.objects.all())
+    ticket_type = TicketTypeSerializer(read_only=True)
+    ticket_type_id = serializers.PrimaryKeyRelatedField(
+        queryset=TicketType.objects.all(), source="ticket_type", write_only=True
+    )
 
     class Meta:
         model = Ticket
         fields = [
             "id",
             "ticket_type",
+            "ticket_type_id",
             "purchase_date",
             "quantity",
             "rating",

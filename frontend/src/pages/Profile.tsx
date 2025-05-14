@@ -11,7 +11,7 @@ function Profile() {
 	const navigate = useNavigate()
 
 	useEffect(() => {
-		fetchWithCSRF("http://localhost:8000/api/user/purchases/", {
+		fetchWithCSRF("http://localhost:8000/api/purchases/", {
 			method: "GET",
 			credentials: "include",
 		})
@@ -62,28 +62,27 @@ function Profile() {
 			<Table striped bordered hover>
 				<thead>
 					<tr>
-						<th>#</th>
 						<th>Evento</th>
 						<th>Data</th>
-						<th>Bilhetes</th>
+						<th>Tipo de Bilhete</th>
+						<th>Quantidade</th>
 						<th>Preço</th>
 					</tr>
 				</thead>
 				<tbody>
 					{purchases.length > 0 ? (
-						purchases.map((purchase: any) => (
+						purchases.map((purchase: Ticket) => (
 							<tr key={purchase.id}>
-								<td>{purchase.id}</td>
-								<td>{purchase.event_name}</td> {/* Assuming event_name is part of the API response */}
+								<td>{purchase.ticket_type.event.name}</td>
 								<td>
 									{new Date(purchase.purchase_date).toLocaleString("pt", {
 										dateStyle: "short",
 										timeStyle: "short",
 									})}
 								</td>
+								<td>{purchase.ticket_type.name}</td>
 								<td>{purchase.quantity}</td>
-								<td>{purchase.ticket_type.price} €</td>{" "}
-								{/* Assuming price is part of the API response */}
+								<td>{purchase.ticket_type.price} €</td>
 							</tr>
 						))
 					) : (

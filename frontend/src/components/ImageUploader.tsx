@@ -63,9 +63,8 @@ function ImageUploader() {
 						.join("\n")
 				)
 
-			const data = await response.json()
 			setUploadStatus({
-				message: `Upload successful! URL: ${data.image_url || data.image_path || "N/A"}`,
+				message: `Upload successful! URL: ${responseData.image_path || "N/A"}`,
 				isError: false,
 			})
 
