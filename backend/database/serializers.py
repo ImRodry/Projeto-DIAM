@@ -69,6 +69,7 @@ class EventSerializer(serializers.ModelSerializer):
         fields = [
             "id",
             "name",
+            "image",
             "date",
             "description",
             "location",

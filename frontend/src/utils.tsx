@@ -32,11 +32,35 @@ export interface User {
 export interface Event {
 	id: number
 	name: string
+	image: string
 	description: string
 	date: string
 	location: string
 	latitude: number
 	longitude: number
 	is_visible: boolean
-	tickets_sold: number
+	ticket_types: TicketType[]
+}
+
+export interface EditableEvent extends Event {
+	imageFile?: File
+}
+
+export interface TicketType {
+	event: Event
+	id: number
+	name: string
+	price: number
+	quantity_available: number
+	tickets: Ticket[]
+}
+
+export interface Ticket {
+	id: number
+	ticket_type: TicketType
+	user: User
+	purchase_date: Date
+	quantity: number
+	rating: number
+	rating_comment: string
 }

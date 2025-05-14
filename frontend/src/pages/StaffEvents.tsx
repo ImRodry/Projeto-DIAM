@@ -2,15 +2,15 @@ import { useEffect, useState } from "react"
 import { Table, Button, Modal, Alert, Spinner } from "react-bootstrap"
 import { useNavigate } from "react-router"
 import { useAuth } from "../contexts/AuthContext"
-import EventForm from "../components/EventModal"
-import { fetchWithCSRF, type Event } from "../utils"
+import EventForm from "../components/EventForm"
+import { fetchWithCSRF, type EditableEvent, type Event, type TicketType } from "../utils"
 
 function StaffEvents() {
 	const navigate = useNavigate()
 	const [events, setEvents] = useState<Event[]>([])
 	const [showEditModal, setShowEditModal] = useState(false)
 	const [showCreateModal, setShowCreateModal] = useState(false)
-	const [selectedEvent, setSelectedEvent] = useState<Event | null>(null)
+	const [selectedEvent, setSelectedEvent] = useState<EditableEvent | null>(null)
 	const [error, setError] = useState<string | null>(null)
 	const { user } = useAuth()
 
@@ -40,8 +40,8 @@ function StaffEvents() {
 		setShowEditModal(true)
 	}
 
-	const handleDelete = async (eventId: number, ticketsSold: number) => {
-		if (ticketsSold > 0) {
+	const handleDelete = async (eventId: number, ticketTypes: TicketType[]) => {
+		if (ticketTypes.some(type => type.tickets.length > 0)) {
 			alert("Cannot delete event with sold tickets")
 			return
 		}
@@ -60,23 +60,23 @@ function StaffEvents() {
 		}
 	}
 
-	const handleEditSubmit = async (e: React.FormEvent) => {
-		e.preventDefault()
-		if (!selectedEvent) return
+	const uploadImageIfPresent = async (imageFile: File): Promise<string> => {
+		const formData = new FormData()
+		formData.append("image", imageFile)
 
-		try {
-			const response = await fetchWithCSRF(`http://localhost:8000/database/api/events/${selectedEvent.id}/`, {
-				method: "PATCH",
-				headers: { "Content-Type": "application/json" },
-				credentials: "include",
-				body: JSON.stringify(selectedEvent),
-			})
-			if (!response.ok) throw new Error("Failed to update event")
-			setShowEditModal(false)
-			fetchEvents()
-		} catch (err) {
-			setError("Failed to update event")
+		const response = await fetchWithCSRF("http://localhost:8000/database/api/upload/", {
+			method: "POST",
+			body: formData,
+			credentials: "include",
+		})
+
+		if (!response.ok) {
+			const errorData = await response.json().catch(() => ({}))
+			throw new Error(errorData.message || "Image upload failed")
 		}
+
+		const data = await response.json()
+		return data.image_url || data.image_path
 	}
 
 	const handleCreateSubmit = async (e: React.FormEvent) => {
@@ -84,17 +84,56 @@ function StaffEvents() {
 		if (!selectedEvent) return
 
 		try {
+			// Upload image if selected
+			if (selectedEvent.imageFile) {
+				const imageUrl = await uploadImageIfPresent(selectedEvent.imageFile)
+				selectedEvent.image = imageUrl
+				delete selectedEvent.imageFile
+			}
+
 			const response = await fetchWithCSRF("http://localhost:8000/database/api/events/", {
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
 				credentials: "include",
 				body: JSON.stringify(selectedEvent),
 			})
+
 			if (!response.ok) throw new Error("Failed to create event")
+
 			setShowCreateModal(false)
+			setSelectedEvent(null)
 			fetchEvents()
 		} catch (err) {
 			setError("Failed to create event")
+		}
+	}
+
+	const handleEditSubmit = async (e: React.FormEvent) => {
+		e.preventDefault()
+		if (!selectedEvent) return
+
+		try {
+			// Upload image if a new one was selected
+			if (selectedEvent.imageFile) {
+				const imageUrl = await uploadImageIfPresent(selectedEvent.imageFile)
+				selectedEvent.image = imageUrl
+				delete selectedEvent.imageFile
+			}
+
+			const response = await fetchWithCSRF(`http://localhost:8000/database/api/events/${selectedEvent.id}/`, {
+				method: "PATCH",
+				headers: { "Content-Type": "application/json" },
+				credentials: "include",
+				body: JSON.stringify(selectedEvent),
+			})
+
+			if (!response.ok) throw new Error("Failed to update event")
+
+			setShowEditModal(false)
+			setSelectedEvent(null)
+			fetchEvents()
+		} catch (err) {
+			setError("Failed to update event")
 		}
 	}
 
@@ -109,13 +148,14 @@ function StaffEvents() {
 					setSelectedEvent({
 						id: 0,
 						name: "",
+						image: "",
 						description: "",
 						date: "",
 						location: "",
 						latitude: 0.0,
 						longitude: 0.0,
 						is_visible: false,
-						tickets_sold: 0,
+						ticket_types: [],
 					})
 					setShowCreateModal(true)
 				}}
@@ -129,7 +169,7 @@ function StaffEvents() {
 						<th>Data</th>
 						<th>Localização</th>
 						<th>Visível</th>
-						<th>Bilhetes Vendidos</th>
+						<th>Tipo de Bilhete</th>
 						<th>Ações</th>
 					</tr>
 				</thead>
@@ -138,11 +178,22 @@ function StaffEvents() {
 						<tr key={event.id}>
 							<td>{event.name}</td>
 							<td>
-								{new Date(event.date).toLocaleString("pt", { dateStyle: "short", timeStyle: "short" })}
+								{new Date(event.date).toLocaleString("pt", {
+									dateStyle: "short",
+									timeStyle: "short",
+								})}
 							</td>
-							<td>{event.location}</td>
+							<td>
+								<a
+									href={`https://www.google.com/maps?q=${event.latitude},${event.longitude}`}
+									target="_blank"
+									rel="noopener noreferrer"
+								>
+									{event.location}
+								</a>
+							</td>
 							<td>{event.is_visible ? "Sim" : "Não"}</td>
-							<td>{event.tickets_sold}</td>
+							<td>{event.ticket_types.map(type => type.name).join(", ")}</td>
 							<td>
 								<Button variant="warning" size="sm" className="me-2" onClick={() => handleEdit(event)}>
 									Editar
@@ -150,8 +201,8 @@ function StaffEvents() {
 								<Button
 									variant="danger"
 									size="sm"
-									onClick={() => handleDelete(event.id, event.tickets_sold)}
-									disabled={event.tickets_sold > 0}
+									onClick={() => handleDelete(event.id, event.ticket_types)}
+									disabled={event.ticket_types.some(type => type.tickets.length > 0)}
 								>
 									Apagar
 								</Button>

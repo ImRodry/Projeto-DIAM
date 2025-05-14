@@ -1,14 +1,7 @@
 import { useEffect, useState } from "react"
 import { Card, Row, Col, Spinner } from "react-bootstrap"
 import { useNavigate } from "react-router"
-
-interface Event {
-	id: number
-	title: string
-	description: string
-	date: string
-	image?: string
-}
+import type { Event } from "../utils"
 
 function Home() {
 	const [events, setEvents] = useState<Event[]>([])
@@ -31,9 +24,16 @@ function Home() {
 	const renderEventCard = (event: Event) => (
 		<Col key={event.id} md={4} className="mb-4">
 			<Card onClick={() => navigate(`/event/${event.id}`)} style={{ cursor: "pointer" }}>
-				{event.image && <Card.Img variant="top" src={event.image} />}
+				{event.image && (
+					<Card.Img
+						variant="top"
+						src={"http://localhost:8000" + event.image}
+						alt={event.name}
+						style={{ objectFit: "cover", maxHeight: "300px" }}
+					/>
+				)}
 				<Card.Body>
-					<Card.Title>{event.title}</Card.Title>
+					<Card.Title>{event.name}</Card.Title>
 					<Card.Text>{event.description}</Card.Text>
 					<Card.Text className="text-muted">
 						{new Date(event.date).toLocaleString("pt", { dateStyle: "short", timeStyle: "short" })}

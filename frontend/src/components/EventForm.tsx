@@ -1,15 +1,36 @@
+import { useState, useEffect } from "react"
 import { Button, Form, Modal } from "react-bootstrap"
-import { type Event } from "../utils"
+import { type EditableEvent, type Event } from "../utils"
 
 type EventFormProps = {
 	event: Event | null
-	setEvent: React.Dispatch<React.SetStateAction<Event | null>>
+	setEvent: React.Dispatch<React.SetStateAction<EditableEvent | null>>
 	onSubmit: (e: React.FormEvent) => void
 	onCancel: () => void
 }
 
 function EventForm({ event, setEvent, onSubmit, onCancel }: EventFormProps) {
+	const [previewUrl, setPreviewUrl] = useState<string | null>(null)
+
+	useEffect(() => {
+		// Clean up object URL on unmount
+		return () => {
+			if (previewUrl) {
+				URL.revokeObjectURL(previewUrl)
+			}
+		}
+	}, [previewUrl])
+
 	if (!event) return null
+
+	const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+		const file = e.target.files?.[0]
+		if (file) {
+			setEvent(prev => (prev ? { ...prev, imageFile: file } : null))
+			const objectUrl = URL.createObjectURL(file)
+			setPreviewUrl(objectUrl)
+		}
+	}
 
 	return (
 		<Form onSubmit={onSubmit}>
@@ -22,6 +43,23 @@ function EventForm({ event, setEvent, onSubmit, onCancel }: EventFormProps) {
 						onChange={e => setEvent(prev => (prev ? { ...prev, name: e.target.value } : null))}
 						required
 					/>
+				</Form.Group>
+				<Form.Group className="mb-3">
+					<Form.Label>Imagem</Form.Label>
+					<Form.Control type="file" accept="image/*" onChange={handleImageChange} />
+					{previewUrl ? (
+						<div className="mt-2">
+							<img src={previewUrl} alt="Preview" style={{ maxWidth: "100%", maxHeight: "200px" }} />
+						</div>
+					) : event.image ? (
+						<div className="mt-2">
+							<img
+								src={"http://localhost:8000" + event.image}
+								alt="Current"
+								style={{ maxWidth: "100%", maxHeight: "200px" }}
+							/>
+						</div>
+					) : null}
 				</Form.Group>
 				<Form.Group className="mb-3">
 					<Form.Label>Descrição</Form.Label>

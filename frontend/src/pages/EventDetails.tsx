@@ -4,19 +4,11 @@ import { Card, Button, Spinner } from "react-bootstrap"
 import LoginModal from "../components/LoginModal.tsx"
 import SignupModal from "../components/SignupModal.tsx"
 import { useAuth } from "../contexts/AuthContext"
-
-interface Event {
-	id: number
-	title: string
-	description: string
-	date: string
-	ticket_price: number
-	image?: string
-}
+import { type EditableEvent } from "../utils"
 
 function EventDetails() {
 	const { id } = useParams<{ id: string }>()
-	const [event, setEvent] = useState<Event | null>(null)
+	const [event, setEvent] = useState<EditableEvent | null>(null)
 	const [showLogin, setShowLogin] = useState(false)
 	const [showSignup, setShowSignup] = useState(false)
 	const [loading, setLoading] = useState(true)
@@ -86,10 +78,27 @@ function EventDetails() {
 			<LoginModal {...loginModalProps} />
 			<SignupModal {...signupModalProps} />
 			<Card className="mt-4">
-				{event.image && <Card.Img variant="top" src={event.image} />}
+				{event.image && (
+					<Card.Img
+						variant="top"
+						src={"http://localhost:8000" + event.image}
+						alt={event.name}
+						style={{ objectFit: "cover", maxHeight: "300px" }}
+					/>
+				)}
 				<Card.Body>
-					<Card.Title>{event.title}</Card.Title>
+					<Card.Title>{event.name}</Card.Title>
 					<Card.Text>{event.description}</Card.Text>
+					<Card.Text>
+						<strong>Localização:</strong>{" "}
+						<a
+							href={`https://www.google.com/maps?q=${event.latitude},${event.longitude}`}
+							target="_blank"
+							rel="noopener noreferrer"
+						>
+							{event.location}
+						</a>
+					</Card.Text>
 					<Card.Text>
 						<strong>Data:</strong>{" "}
 						{new Date(event.date).toLocaleString("pt", { dateStyle: "short", timeStyle: "short" })}

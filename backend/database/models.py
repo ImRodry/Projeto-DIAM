@@ -6,6 +6,7 @@ from django.core.validators import MinValueValidator, MaxValueValidator
 # Create your models here.
 class Event(models.Model):
     name = models.TextField()
+    image = models.TextField(null=True)
     date = models.DateTimeField()
     description = models.TextField()
     location = models.TextField()

@@ -16,4 +16,5 @@ urlpatterns = [
         views.TicketTypeSingleView.as_view(),
     ),
     path("api/purchases/", views.PurchasesView.as_view()),
+    path("api/upload/", views.UploadImageView.as_view()),
 ]

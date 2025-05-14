@@ -2,10 +2,10 @@ import { useEffect, useState } from "react"
 import { Button, Card, Table, Spinner, Alert } from "react-bootstrap"
 import { useNavigate } from "react-router"
 import { useAuth } from "../contexts/AuthContext" // make sure the path is correct
-import { fetchWithCSRF } from "../utils"
+import { fetchWithCSRF, type Ticket } from "../utils"
 
 function Profile() {
-	const [purchases, setPurchases] = useState<any[]>([])
+	const [purchases, setPurchases] = useState<Ticket[]>([])
 	const [loading, setLoading] = useState(true)
 	const { user } = useAuth()
 	const navigate = useNavigate()

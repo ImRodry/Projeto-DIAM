@@ -1,8 +1,8 @@
-from django.shortcuts import render
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
+from django.core.files.storage import FileSystemStorage
 from django.http import JsonResponse
-from rest_framework.decorators import api_view, permission_classes
+from rest_framework.decorators import permission_classes
 from rest_framework.exceptions import ValidationError
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -16,8 +16,6 @@ from .serializers import (
     TicketSerializer,
 )
 from .models import Event, TicketType, Ticket
-
-# Create your views here.
 
 
 class SignupView(APIView):
@@ -196,3 +194,23 @@ class PurchasesView(APIView):
             )
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+class UploadImageView(APIView):
+    def post(self, request, *args, **kwargs):
+
+        if request.FILES and request.FILES.get('image'):
+            uploaded_file = request.FILES['image']
+
+            # Create a unique filename
+            filename = f"upload_{uploaded_file.name}"
+
+            # Save to images directory
+            fs = FileSystemStorage(location='images/')
+            saved_path = fs.save(filename, uploaded_file)
+
+            return JsonResponse({
+                'status': 'success',
+                'image_path': f'/images/{saved_path}'
+            })
+
+        return JsonResponse({'status': 'error', 'message': 'Invalid request'}, status=400)
