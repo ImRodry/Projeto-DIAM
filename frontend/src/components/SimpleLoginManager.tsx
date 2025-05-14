@@ -35,7 +35,7 @@ function SimpleLoginManager() {
 				<>
 					{user.is_staff && (
 						<Button variant="info" size="sm" onClick={goToStaff}>
-							Painel do Staff
+							Staff
 						</Button>
 					)}
 					<Button variant="success" size="sm" onClick={goToProfile}>

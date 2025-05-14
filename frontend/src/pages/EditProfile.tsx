@@ -2,6 +2,7 @@ import { useEffect, useState } from "react"
 import { Button, Form, Spinner, Alert } from "react-bootstrap"
 import { useNavigate } from "react-router"
 import { useAuth } from "../contexts/AuthContext"
+import { fetchWithCSRF, type APIError, type User } from "../utils"
 
 function EditProfile() {
 	const { user, setUser } = useAuth()
@@ -55,24 +56,24 @@ function EditProfile() {
 			last_name: formData.last_name,
 			...(formData.new_password && {
 				old_password: formData.old_password,
-				new_password: formData.new_password,
+				password: formData.new_password,
 			}),
 		}
 
-		const res = await fetch("http://localhost:8000/database/api/user/update/", {
-			method: "POST",
-			headers: { "Content-Type": "application/json" },
-			credentials: "include",
-			body: JSON.stringify(payload),
-		})
+		const res = await fetchWithCSRF("http://localhost:8000/database/api/user/", {
+				method: "PATCH",
+				headers: { "Content-Type": "application/json" },
+				credentials: "include",
+				body: JSON.stringify(payload),
+			}),
+			responseData: User | APIError = await res.json()
 
-		if (res.ok) {
-			const updatedUser = await res.json()
-			setUser(updatedUser)
-			alert("User info updated!")
-			navigate("/profile")
+		if ("error" in responseData) {
+			console.error(responseData)
+			alert(`Update failed: ${responseData.error}`)
 		} else {
-			alert("Update failed. Please check your password or try again.")
+			setUser(responseData)
+			navigate("/profile")
 		}
 	}
 

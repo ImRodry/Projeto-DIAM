@@ -28,3 +28,15 @@ export interface User {
 	date_joined: Date
 	is_staff: boolean
 }
+
+export interface Event {
+	id: number
+	name: string
+	description: string
+	date: string
+	location: string
+	latitude: number
+	longitude: number
+	is_visible: boolean
+	tickets_sold: number
+}

@@ -11,6 +11,7 @@ class Event(models.Model):
     location = models.TextField()
     latitude = models.FloatField()
     longitude = models.FloatField()
+    is_visible = models.BooleanField(default=False)
 
 
 class TicketType(models.Model):

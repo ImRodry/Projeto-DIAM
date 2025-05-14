@@ -65,7 +65,7 @@ function AppContent() {
 					<Route path="/event/:id" element={<EventDetails />} />
 					<Route path="/profile" element={<Profile />} />
 					<Route path="/profile/edit" element={<EditProfile />} />
-					<Route path="/staff/events" element={<StaffEvents />} />
+					<Route path="/staff" element={<StaffEvents />} />
 				</Routes>
 			</Container>
 

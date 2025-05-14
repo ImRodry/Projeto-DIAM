@@ -2,6 +2,7 @@ import { useEffect, useState } from "react"
 import { Button, Card, Table, Spinner, Alert } from "react-bootstrap"
 import { useNavigate } from "react-router"
 import { useAuth } from "../contexts/AuthContext" // make sure the path is correct
+import { fetchWithCSRF } from "../utils"
 
 function Profile() {
 	const [purchases, setPurchases] = useState<any[]>([])
@@ -11,7 +12,7 @@ function Profile() {
 
 	useEffect(() => {
 		// Fetch purchase history
-		fetch("http://localhost:8000/database/api/user/purchases/", {
+		fetchWithCSRF("http://localhost:8000/database/api/user/purchases/", {
 			method: "GET",
 			credentials: "include",
 		})
@@ -43,7 +44,10 @@ function Profile() {
 					<Card.Text>Email: {user.email}</Card.Text>
 					<Card.Text>Primeiro Nome: {user.first_name}</Card.Text>
 					<Card.Text>Último Nome: {user.last_name}</Card.Text>
-					<Card.Text>Membro Desde: {new Date(user.date_joined).toLocaleString("pt", { dateStyle: "short", timeStyle: "short" })}</Card.Text>
+					<Card.Text>
+						Membro Desde:{" "}
+						{new Date(user.date_joined).toLocaleString("pt", { dateStyle: "short", timeStyle: "short" })}
+					</Card.Text>
 					<Button variant="primary" onClick={() => navigate("/profile/edit")}>
 						Editar Informação
 					</Button>

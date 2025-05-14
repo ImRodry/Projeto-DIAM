@@ -3,6 +3,7 @@ import { useParams } from "react-router"
 import { Card, Button, Spinner } from "react-bootstrap"
 import LoginModal from "../components/LoginModal.tsx"
 import SignupModal from "../components/SignupModal.tsx"
+import { useAuth } from "../contexts/AuthContext"
 
 interface Event {
 	id: number
@@ -16,10 +17,10 @@ interface Event {
 function EventDetails() {
 	const { id } = useParams<{ id: string }>()
 	const [event, setEvent] = useState<Event | null>(null)
-	const [isLoggedIn, setIsLoggedIn] = useState(false)
 	const [showLogin, setShowLogin] = useState(false)
 	const [showSignup, setShowSignup] = useState(false)
 	const [loading, setLoading] = useState(true)
+	const { user } = useAuth()
 
 	const loginModalProps = {
 		show: showLogin,
@@ -35,38 +36,18 @@ function EventDetails() {
 		onHide: () => setShowSignup(false),
 	}
 
-	// useEffect(() => {
-	// 	fetch(`http://localhost:8000/database/api/events/${id}/`)
-	// 		.then(res => res.json())
-	// 		.then(data => setEvent(data))
-	// 		.catch(err => console.error("Failed to load event", err))
-
-	// 	fetch("http://localhost:8000/database/api/user/", { credentials: "include" })
-	// 		.then(res => setIsLoggedIn(res.ok))
-	// 		.catch(() => setIsLoggedIn(false))
-	// }, [id])
-
-	// TESTE para usar o mock json
 	useEffect(() => {
-		// Fetch event data from the mock JSON file
-		fetch("/mock-events.json")
+		fetch(`http://localhost:8000/database/api/events/${id}/`)
 			.then(res => res.json())
-			.then(data => {
-				// Find the event by ID from the mock data
-				const foundEvent = data.find((e: Event) => String(e.id) === id)
-				setEvent(foundEvent || null) // If event not found, set it to null
-			})
+			.then(data => setEvent(data))
 			.catch(err => console.error("Failed to load event", err))
 			.finally(() => setLoading(false))
-		// Simulate a user login status for testing
-		const mockIsLoggedIn = true // Change to `false` to test logged-out state
-		setIsLoggedIn(mockIsLoggedIn)
 	}, [id])
 
 	const [ticketQuantity, setTicketQuantity] = useState(1)
 
 	const handleBuyClick = () => {
-		if (!isLoggedIn) {
+		if (!user) {
 			setShowLogin(true)
 		} else {
 			// TODO Redirect to purchase logic, or show ticket modal, etc.
@@ -113,9 +94,9 @@ function EventDetails() {
 						<strong>Data:</strong>{" "}
 						{new Date(event.date).toLocaleString("pt", { dateStyle: "short", timeStyle: "short" })}
 					</Card.Text>
-					<Card.Text>
+					{/* <Card.Text>
 						<strong>Preço do bilhete:</strong> {event.ticket_price.toFixed(2)} €
-					</Card.Text>
+					</Card.Text> */}
 					<div className="d-flex flex-wrap gap-2 mt-3">
 						{!isPastEvent && (
 							<div className="d-flex align-items-center gap-2">
