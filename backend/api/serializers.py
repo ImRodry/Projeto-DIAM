@@ -30,11 +30,15 @@ class UserSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data: dict):
         validated_data.pop("old_password", None)  # Not needed on create
-        return User.objects.create_user(**validated_data)
+        groups = validated_data.pop("groups", [1])
+        user = User.objects.create_user(**validated_data)
+        user.groups.set(groups)
+        return user
 
     def update(self, instance: User, validated_data: dict):
         password = validated_data.pop("password", None)
         old_password = validated_data.pop("old_password", None)
+        groups = validated_data.pop("groups", None)
 
         if password:
             if not old_password:
@@ -50,6 +54,7 @@ class UserSerializer(serializers.ModelSerializer):
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
 
+        instance.groups.set(groups) if groups else None
         instance.save()
         return instance
 
