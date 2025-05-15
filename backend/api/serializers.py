@@ -127,13 +127,14 @@ class EventSerializer(serializers.ModelSerializer):
         ticket_types_data = validated_data.pop("ticket_types", [])
         event = Event.objects.create(**validated_data)
         for ticket_data in ticket_types_data:
-            TicketType.objects.create(event=event, **ticket_data)
+            groups = ticket_data.pop("groups", [])
+            ticket = TicketType.objects.create(event=event, **ticket_data)
+            ticket.groups.set(groups)
         return event
 
     def update(self, instance, validated_data: dict):
         ticket_types_data = validated_data.pop("ticket_types", None)
 
-        # Update basic event fields
         for attr, value in validated_data.items():
             setattr(instance, attr, value)
         instance.save()
@@ -141,6 +142,7 @@ class EventSerializer(serializers.ModelSerializer):
         if ticket_types_data is not None:
             sent_ids = []
             for ticket_data in ticket_types_data:
+                groups = ticket_data.pop("groups", [])
                 ticket_id = ticket_data.get("id", None)
                 if ticket_id:
                     try:
@@ -149,13 +151,18 @@ class EventSerializer(serializers.ModelSerializer):
                             if attr != "id":
                                 setattr(ticket_type, attr, value)
                         ticket_type.save()
+                        ticket_type.groups.set(groups)
                         sent_ids.append(ticket_id)
                     except TicketType.DoesNotExist:
-                        TicketType.objects.create(event=instance, **ticket_data)
+                        new_ticket = TicketType.objects.create(
+                            event=instance, **ticket_data
+                        )
+                        new_ticket.groups.set(groups)
                 else:
                     new_ticket = TicketType.objects.create(
                         event=instance, **ticket_data
                     )
+                    new_ticket.groups.set(groups)
                     sent_ids.append(new_ticket.id)
 
             # Delete ticket types not included in the update
