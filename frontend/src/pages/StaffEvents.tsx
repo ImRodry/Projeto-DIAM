@@ -3,7 +3,7 @@ import { Table, Button, Modal, Alert, Spinner, ListGroup } from "react-bootstrap
 import { useNavigate } from "react-router"
 import { useAuth } from "../contexts/AuthContext"
 import EventForm from "../components/EventForm"
-import { fetchWithCSRF, type APIError, type EditableEvent, type Event } from "../utils"
+import { fetchWithCSRF, getErrorMessage, type APIError, type EditableEvent, type Event } from "../utils"
 
 function StaffEvents() {
 	const navigate = useNavigate()
@@ -19,12 +19,7 @@ function StaffEvents() {
 				credentials: "include",
 			}),
 			responseData: APIError | Event[] = await response.json()
-		if ("errors" in responseData)
-			throw new Error(
-				Object.entries(responseData.errors)
-					.map(([key, value]) => `${key}: ${value.join(", ")}`)
-					.join("\n")
-			)
+		if ("errors" in responseData) throw new Error(getErrorMessage(responseData))
 		setEvents(responseData)
 	}
 
@@ -51,15 +46,11 @@ function StaffEvents() {
 			})
 			if (!response.ok) {
 				const responseData: APIError = await response.json()
-				throw new Error(
-					Object.entries(responseData.errors)
-						.map(([key, value]) => `${key}: ${value.join(", ")}`)
-						.join("\n")
-				)
+				throw new Error(getErrorMessage(responseData))
 			}
 			fetchEvents()
 		} catch (err) {
-			setError("Failed to delete event")
+			setError(err.message)
 		}
 	}
 
@@ -73,12 +64,7 @@ function StaffEvents() {
 				credentials: "include",
 			}),
 			responseData: APIError | { image_path: string } = await response.json()
-		if ("errors" in responseData)
-			throw new Error(
-				Object.entries(responseData.errors)
-					.map(([key, value]) => `${key}: ${value.join(", ")}`)
-					.join("\n")
-			)
+		if ("errors" in responseData) throw new Error(getErrorMessage(responseData))
 
 		return responseData.image_path
 	}
@@ -102,13 +88,7 @@ function StaffEvents() {
 					body: JSON.stringify(selectedEvent),
 				}),
 				responseData: APIError | Event[] = await response.json()
-			if ("errors" in responseData)
-				throw new Error(
-					Object.entries(responseData.errors)
-						.map(([key, value]) => `${key}: ${value.join(", ")}`)
-						.join("\n")
-				)
-
+			if ("errors" in responseData) throw new Error(getErrorMessage(responseData))
 			setShowCreateModal(false)
 			setSelectedEvent(null)
 			fetchEvents()
@@ -136,12 +116,7 @@ function StaffEvents() {
 					body: JSON.stringify(selectedEvent),
 				}),
 				responseData: APIError | Event = await response.json()
-			if ("errors" in responseData)
-				throw new Error(
-					Object.entries(responseData.errors)
-						.map(([key, value]) => `${key}: ${value.join(", ")}`)
-						.join("\n")
-				)
+			if ("errors" in responseData) throw new Error(getErrorMessage(responseData))
 			setShowEditModal(false)
 			setSelectedEvent(null)
 			fetchEvents()

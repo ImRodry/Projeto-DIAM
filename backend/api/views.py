@@ -118,9 +118,7 @@ class EventSingleView(APIView):
     def delete(self, request: Request, pk: int):
         event = self.get_object(pk)
         for ticket_type in event.ticket_types.all():
-            if (
-                ticket_type.tickets.exists()
-            ):  # If there are tickets related to the TicketType
+            if ticket_type.tickets.exists():
                 raise ValidationError("Cannot delete event with sold/issued tickets.")
         event.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)

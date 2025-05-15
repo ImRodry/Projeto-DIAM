@@ -26,7 +26,7 @@ class TicketType(models.Model):
 
 class Ticket(models.Model):
     ticket_type = models.ForeignKey(
-        TicketType, on_delete=models.CASCADE, related_name="tickets"
+        TicketType, on_delete=models.RESTRICT, related_name="tickets"
     )
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="tickets")
     purchase_date = models.DateTimeField(auto_now_add=True)

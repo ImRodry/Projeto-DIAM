@@ -4,7 +4,14 @@ import { Card, Button, Spinner, ListGroup } from "react-bootstrap"
 import LoginModal from "../components/LoginModal.tsx"
 import SignupModal from "../components/SignupModal.tsx"
 import { useAuth } from "../contexts/AuthContext"
-import { fetchWithCSRF, type APIError, type EditableEvent, type Ticket, type TicketPostData } from "../utils"
+import {
+	fetchWithCSRF,
+	getErrorMessage,
+	type APIError,
+	type EditableEvent,
+	type Ticket,
+	type TicketPostData,
+} from "../utils"
 
 function EventDetails() {
 	const { id } = useParams<{ id: string }>()
@@ -71,12 +78,7 @@ function EventDetails() {
 				},
 			}),
 			responseData: APIError | Ticket = await response.json()
-		if ("errors" in responseData)
-			throw new Error(
-				Object.entries(responseData.errors)
-					.map(([key, value]) => `${key}: ${value.join(", ")}`)
-					.join("\n")
-			)
+		if ("errors" in responseData) throw new Error(getErrorMessage(responseData))
 	}
 
 	const handleEvaluationSubmit = (e: React.FormEvent<HTMLFormElement>) => {

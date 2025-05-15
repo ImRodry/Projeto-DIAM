@@ -16,8 +16,29 @@ export function fetchWithCSRF(url: string, options: RequestInit = {}): Promise<R
 	return fetch(url, options)
 }
 
+export function getErrorMessage(error: APIError) {
+	if (error.errors) {
+		console.log(error.errors)
+		if (Array.isArray(error.errors)) {
+			return error.errors.map((err: any) => err.message).join(", ")
+		} else if (typeof error.errors === "string") {
+			return error.errors
+		} else if (typeof error.errors === "object") {
+			return Object.entries(error.errors)
+				.map(
+					([key, value]) =>
+						`${key !== "non_field_errors" ? `${key}: ` : ""}${
+							Array.isArray(value) ? value.join(", ") : value
+						}`
+				)
+				.join("\n")
+		}
+	}
+	return "An unknown error occurred"
+}
+
 export interface APIError {
-	errors: Record<string, string[]>
+	errors: unknown
 }
 
 export interface User {
