@@ -3,7 +3,7 @@ import { Table, Button, Modal, Alert, Spinner, ListGroup } from "react-bootstrap
 import { useNavigate } from "react-router"
 import { useAuth } from "../contexts/AuthContext"
 import EventForm from "../components/EventForm"
-import { fetchWithCSRF, getErrorMessage, type APIError, type EditableEvent, type Event } from "../utils"
+import { fetchWithCSRF, getErrorMessage, isStaff, type APIError, type EditableEvent, type Event } from "../utils"
 
 function StaffEvents() {
 	const navigate = useNavigate()
@@ -29,7 +29,7 @@ function StaffEvents() {
 
 	// Don't render anything while checking Staff status
 	if (!user) return <Spinner animation="border" />
-	if (!user.is_staff) navigate("/")
+	if (!isStaff(user)) navigate("/")
 
 	const handleEdit = (event: Event) => {
 		setSelectedEvent(event)
