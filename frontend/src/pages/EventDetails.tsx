@@ -232,37 +232,46 @@ function EventDetails() {
 						</ListGroup>
 					</div>
 					<div className="d-flex flex-wrap gap-2 mt-3">
-						{!isPastEvent && (
-							<>
-								<select
-									className="form-select"
-									style={{ width: "200px" }}
-									value={selectedTicketTypeId ?? ""}
-									onChange={e => setSelectedTicketTypeId(Number(e.target.value))}
-								>
-									<option value="" disabled>
-										Selecione um tipo de bilhete
-									</option>
-									{event.ticket_types.map((type, index) => (
-										<option key={index} value={type.id}>
-											{type.name} – €{type.price}
-										</option>
-									))}
-								</select>
-								<input
-									type="number"
-									min={1}
-									value={ticketQuantity}
-									onChange={e => setTicketQuantity(Number(e.target.value))}
-									className="form-control"
-									style={{ width: "80px" }}
-								/>
-								<Button variant="primary" onClick={handleBuyClick}>
-									Comprar
+						{!isPastEvent ? (
+							!user ? (
+								<Button variant="warning" onClick={handleBuyClick}>
+									Precisas de estar logged in para comprar bilhetes.
 								</Button>
-							</>
-						)}
-						{isPastEvent && (
+							) : (
+								<>
+									<select
+										className="form-select"
+										style={{ width: "200px" }}
+										value={selectedTicketTypeId ?? ""}
+										onChange={e => setSelectedTicketTypeId(Number(e.target.value))}
+									>
+										<option value="" disabled>
+											Selecione um tipo de bilhete
+										</option>
+										{event.ticket_types
+											.filter(type => type.groups.some(role => user.groups.includes(role)))
+											.map((type, index) => (
+												<option key={index} value={type.id}>
+													{type.name} – €{type.price}
+												</option>
+											))}
+									</select>
+
+									<input
+										type="number"
+										min={1}
+										value={ticketQuantity}
+										onChange={e => setTicketQuantity(Number(e.target.value))}
+										className="form-control"
+										style={{ width: "80px" }}
+									/>
+
+									<Button variant="primary" onClick={handleBuyClick}>
+										Comprar
+									</Button>
+								</>
+							)
+						) : (
 							<>
 								{user && (
 									<Button
@@ -287,6 +296,7 @@ function EventDetails() {
 										Avaliar Evento
 									</Button>
 								)}
+
 								<Button
 									variant="secondary"
 									onClick={() => {
