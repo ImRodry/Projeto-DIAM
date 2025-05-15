@@ -145,11 +145,9 @@ function StaffEvents() {
 						is_visible: false,
 						ticket_types: [
 							{
-								id: 0,
 								name: "",
 								price: 0,
 								quantity_available: 0,
-								tickets: [],
 							},
 						],
 					})

@@ -175,13 +175,12 @@ function EventForm({ event, setEvent, onSubmit, onCancel }: EventFormProps) {
 									<Button
 										variant="danger"
 										onClick={() => {
-											// Prevent deleting the first ticket type
-											if (index !== 0) {
+											if (event.ticket_types.length > 1) {
 												const updated = event.ticket_types.filter((_, i) => i !== index)
 												setEvent(prev => (prev ? { ...prev, ticket_types: updated } : null))
 											}
 										}}
-										disabled={index === 0} // Disable remove button for the first ticket type
+										disabled={event.ticket_types.length === 1} // Disable remove button if only one ticket type left
 									>
 										&times;
 									</Button>

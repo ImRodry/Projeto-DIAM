@@ -89,11 +89,10 @@ export interface EventPostData {
 }
 
 export interface TicketTypePostData {
-	id: number
+	id?: number
 	name: string
 	price: number
 	quantity_available: number
-	tickets: Ticket[]
 }
 
 export interface TicketPostData {
