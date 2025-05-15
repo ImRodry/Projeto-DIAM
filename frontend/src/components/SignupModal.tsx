@@ -1,6 +1,6 @@
 import { useState, type FormEvent } from "react"
 import { Modal, Button, Form } from "react-bootstrap"
-import { fetchWithCSRF, type APIError, type User } from "../utils"
+import { fetchWithCSRF, getErrorMessage, type APIError, type User } from "../utils"
 import { useAuth } from "../contexts/AuthContext"
 
 interface Props {
@@ -32,11 +32,7 @@ function SignupModal({ show, onHide }: Props) {
 			}),
 			responseData: APIError | User = await response.json()
 		if ("errors" in responseData)
-			throw new Error(
-				Object.entries(responseData.errors)
-					.map(([key, value]) => `${key}: ${value.join(", ")}`)
-					.join("\n")
-			)
+			throw new Error(getErrorMessage(responseData))
 		setUser(responseData)
 		onHide()
 	}

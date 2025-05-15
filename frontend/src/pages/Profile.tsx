@@ -2,7 +2,7 @@ import { useEffect, useState } from "react"
 import { Button, Card, Table, Spinner, Alert } from "react-bootstrap"
 import { useNavigate } from "react-router"
 import { useAuth } from "../contexts/AuthContext"
-import { fetchWithCSRF, type APIError, type Ticket } from "../utils"
+import { fetchWithCSRF, getErrorMessage, type APIError, type Ticket } from "../utils"
 
 function Profile() {
 	const [purchases, setPurchases] = useState<Ticket[]>([])
@@ -18,11 +18,7 @@ function Profile() {
 			.then(async res => {
 				const responseData: APIError | Ticket[] = await res.json()
 				if ("errors" in responseData)
-					throw new Error(
-						Object.entries(responseData.errors)
-							.map(([key, value]) => `${key}: ${value.join(", ")}`)
-							.join("\n")
-					)
+					throw new Error(getErrorMessage(responseData))
 				setPurchases(responseData)
 			})
 			.catch(() => {

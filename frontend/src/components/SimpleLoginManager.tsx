@@ -1,7 +1,7 @@
 import { Button } from "react-bootstrap"
 import { useNavigate } from "react-router"
 import { useAuth } from "../contexts/AuthContext"
-import { fetchWithCSRF, type APIError } from "../utils"
+import { fetchWithCSRF, getErrorMessage, type APIError } from "../utils"
 
 function SimpleLoginManager() {
 	const navigate = useNavigate()
@@ -9,17 +9,13 @@ function SimpleLoginManager() {
 
 	const handleLogout = async () => {
 		const response = await fetchWithCSRF("http://localhost:8000/api/logout/", {
-				method: "POST",
-				credentials: "include",
-			}),
-			responseData: APIError | { success: string } = await response.json()
-		if ("errors" in responseData)
-			throw new Error(
-				Object.entries(responseData.errors)
-					.map(([key, value]) => `${key}: ${value.join(", ")}`)
-					.join("\n")
-			)
-		else {
+			method: "POST",
+			credentials: "include",
+		})
+		if (!response.ok) {
+			const responseData: APIError = await response.json()
+			throw new Error(getErrorMessage(responseData))
+		} else {
 			setUser(null)
 			navigate("/")
 			return

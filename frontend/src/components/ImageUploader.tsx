@@ -1,5 +1,5 @@
 import { useState, useRef, type ChangeEvent } from "react"
-import { fetchWithCSRF, type APIError } from "../utils"
+import { fetchWithCSRF, getErrorMessage, type APIError } from "../utils"
 
 function ImageUploader() {
 	const [imageUrl, setImageUrl] = useState<string | null>(null)
@@ -57,11 +57,7 @@ function ImageUploader() {
 				}),
 				responseData: APIError | { image_path: string } = await response.json()
 			if ("errors" in responseData)
-				throw new Error(
-					Object.entries(responseData.errors)
-						.map(([key, value]) => `${key}: ${value.join(", ")}`)
-						.join("\n")
-				)
+				throw new Error(getErrorMessage(responseData))
 
 			setUploadStatus({
 				message: `Upload successful! URL: ${responseData.image_path || "N/A"}`,

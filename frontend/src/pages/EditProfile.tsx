@@ -2,7 +2,7 @@ import { useEffect, useState } from "react"
 import { Button, Form, Spinner, Alert } from "react-bootstrap"
 import { useNavigate } from "react-router"
 import { useAuth } from "../contexts/AuthContext"
-import { fetchWithCSRF, type APIError, type User } from "../utils"
+import { fetchWithCSRF, getErrorMessage, type APIError, type User } from "../utils"
 
 function EditProfile() {
 	const { user, setUser } = useAuth()
@@ -68,11 +68,7 @@ function EditProfile() {
 			}),
 			responseData: User | APIError = await res.json()
 		if ("errors" in responseData)
-			throw new Error(
-				Object.entries(responseData.errors)
-					.map(([key, value]) => `${key}: ${value.join(", ")}`)
-					.join("\n")
-			)
+			throw new Error(getErrorMessage(responseData))
 		else {
 			setUser(responseData)
 			navigate("/profile")
