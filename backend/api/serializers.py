@@ -61,13 +61,20 @@ class EventSummarySerializer(serializers.ModelSerializer):
         fields = ["id", "name", "date", "location"]
 
 
+class TicketRatingSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Ticket
+        fields = ["rating", "rating_comment"]
+
+
 class TicketTypeSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField(required=False, default=None)
     event = EventSummarySerializer(read_only=True)
+    tickets = TicketRatingSerializer(many=True, read_only=True)
 
     class Meta:
         model = TicketType
-        fields = ["id", "name", "price", "quantity_available", "event"]
+        fields = ["id", "name", "price", "quantity_available", "event", "tickets"]
 
 
 class EventSerializer(serializers.ModelSerializer):
@@ -147,7 +154,7 @@ class TicketSerializer(serializers.ModelSerializer):
             "rating",
             "rating_comment",
         ]
-        read_only_fields = ["id", "user", "purchase_date", "rating", "rating_comment"]
+        read_only_fields = ["id", "user", "purchase_date"]
 
     def validate(self, data: dict):
         ticket_type: TicketType = data.get("ticket_type")

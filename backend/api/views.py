@@ -3,7 +3,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.core.files.storage import FileSystemStorage
 from django.http import JsonResponse
 from rest_framework.decorators import permission_classes
-from rest_framework.exceptions import ValidationError
+from rest_framework.exceptions import ValidationError, PermissionDenied
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.request import Request
@@ -120,52 +120,6 @@ class EventSingleView(APIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-class TicketTypeMultipleView(APIView):
-    def get(self, request: Request, event_id: int):
-        event = Event.objects.get(pk=event_id)
-        ticket_types = event.ticket_types.all()
-        serializer = TicketTypeSerializer(ticket_types, many=True)
-        return JsonResponse(serializer.data, status=status.HTTP_200_OK, safe=False)
-
-    def post(self, request: Request, event_id):
-        event = Event.objects.get(pk=event_id)
-        serializer = TicketTypeSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save(event=event)
-            return JsonResponse(
-                serializer.data,
-                status=status.HTTP_201_CREATED,
-                safe=False,
-            )
-        raise ValidationError(serializer.errors)
-
-
-class TicketTypeSingleView(APIView):
-    def get_object(self, pk: int):
-        try:
-            return TicketType.objects.get(pk=pk)
-        except TicketType.DoesNotExist:
-            raise ValidationError("TicketType not found.")
-
-    def get(self, request: Request, event_id: int, pk: int):
-        ticket_type = self.get_object(pk)
-        serializer = TicketTypeSerializer(ticket_type)
-        return JsonResponse(serializer.data, status=status.HTTP_200_OK, safe=False)
-
-    def patch(self, request: Request, event_id: int, pk: int):
-        ticket_type = self.get_object(pk)
-        serializer = TicketTypeSerializer(ticket_type, data=request.data, partial=True)
-        if serializer.is_valid():
-            serializer.save()
-            return JsonResponse(serializer.data, status=status.HTTP_200_OK, safe=False)
-        raise ValidationError(serializer.errors)
-
-    def delete(self, request: Request, event_id: int, pk: int):
-        ticket_type = self.get_object(pk)
-        ticket_type.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
-
-
 class PurchasesView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -198,6 +152,28 @@ class PurchasesView(APIView):
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
 
         raise ValidationError(serializer.errors)
+
+
+class PurchaseSingleView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def patch(self, request: Request, pk: int):
+        try:
+            ticket = Ticket.objects.get(pk=pk)
+        except Ticket.DoesNotExist:
+            raise ValidationError("Ticket not found.")
+
+        if ticket.user != request.user:
+            raise PermissionDenied("You do not have permission to modify this ticket.")
+
+        rating = request.data.get("rating")
+        rating_comment = request.data.get("rating_comment")
+
+        ticket.rating = rating
+        ticket.rating_comment = rating_comment
+        ticket.save()
+
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class UploadImageView(APIView):

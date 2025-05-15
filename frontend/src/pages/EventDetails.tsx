@@ -27,7 +27,7 @@ function EventDetails() {
 		if (success) {
 			const timer = setTimeout(() => {
 				setSuccess(null)
-			}, 3000) // 3 seconds
+			}, 3000)
 			return () => clearTimeout(timer)
 		}
 	}, [success])
@@ -56,10 +56,43 @@ function EventDetails() {
 		onHide: () => setShowSignup(false),
 	}
 
+	const fetchEvaluations = async () => {
+		try {
+			const response = await fetch(`http://localhost:8000/api/events/${id}/`)
+			const eventData = await response.json()
+			console.log("Event data:", eventData)
+			console.log("Ticket types:", eventData.ticket_types)
+			
+			// Get all tickets with ratings from the event's ticket types
+			const allTickets = eventData.ticket_types
+				.flatMap((type: any) => {
+					console.log("Ticket type:", type)
+					console.log("Tickets in type:", type.tickets)
+					return type.tickets || []
+				})
+				.filter((ticket: any) => {
+					console.log("Checking ticket:", ticket)
+					return ticket.rating !== null
+				})
+				.map((ticket: any) => ({
+					stars: ticket.rating,
+					comment: ticket.rating_comment
+				}))
+			
+			console.log("Final evaluations:", allTickets)
+			setEvaluations(allTickets)
+		} catch (err) {
+			console.error("Failed to load evaluations:", err)
+		}
+	}
+
 	useEffect(() => {
 		fetch(`http://localhost:8000/api/events/${id}/`)
 			.then(res => res.json())
-			.then(data => setEvent(data))
+			.then(data => {
+				setEvent(data)
+				fetchEvaluations() // Fetch evaluations after event is loaded
+			})
 			.catch(err => console.error("Failed to load event", err))
 			.finally(() => setLoading(false))
 	}, [id])
@@ -97,20 +130,57 @@ function EventDetails() {
 		}
 	}
 
-	const handleEvaluationSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+	const handleEvaluationSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault()
-		if (selectedStars < 1 || selectedStars > 5) {
-			alert("Por favor, selecione de 1 a 5 estrelas.")
-			return
-		}
-
+		setError(null)
+		setSuccess(null)
 		const form = e.currentTarget
 		const commentInput = form.elements.namedItem("comment") as HTMLTextAreaElement
 		const comment = commentInput.value
 
-		setEvaluations(prev => [...prev, { stars: selectedStars, comment }])
-		setShowEvaluationForm(false)
-		setSelectedStars(0)
+		try {
+			// Get the user's tickets for this event
+			const ticketsResponse = await fetch(`http://localhost:8000/api/purchases/`, {
+				credentials: "include",
+			})
+			const tickets = await ticketsResponse.json()
+			const eventTickets = tickets.filter((ticket: any) => 
+				event?.ticket_types.some((type: any) => type.id === ticket.ticket_type.id)
+			)
+			
+			if (eventTickets.length === 0) {
+				throw new Error("You need to have purchased a ticket to evaluate this event.")
+			}
+
+			const ticketId = eventTickets[0].id // Use the first ticket found
+
+			const ratingResponse = await fetchWithCSRF(`http://localhost:8000/api/purchase/${ticketId}/`, {
+				method: "PATCH",
+				credentials: "include",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify({
+					rating: selectedStars,
+					rating_comment: comment,
+				}),
+			})
+			if (!ratingResponse.ok) {
+				const data = await ratingResponse.json()
+				throw new Error(getErrorMessage(data))
+			}
+			
+			setSuccess("Avaliação enviada com sucesso!")
+			setShowEvaluationForm(false)
+			setSelectedStars(0)
+			form.reset()
+			
+			// Refresh evaluations after submission
+			await fetchEvaluations()
+		} catch (err) {
+			console.error(err)
+			setError(err.message)
+		}
 	}
 
 	if (loading) return <Spinner animation="border" />

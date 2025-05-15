@@ -10,11 +10,7 @@ urlpatterns = [
     path("user/", views.UserView.as_view()),
     path("events/", views.EventMultipleView.as_view()),
     path("events/<int:pk>/", views.EventSingleView.as_view()),
-    path("events/<int:pk>/ticket-types/", views.TicketTypeMultipleView.as_view()),
-    path(
-        "events/<int:pk>/ticket-types/<int:ticket_type_pk>/",
-        views.TicketTypeSingleView.as_view(),
-    ),
+    path("purchase/<int:pk>/", views.PurchaseSingleView.as_view()),
     path("purchases/", views.PurchasesView.as_view()),
     path("upload/", views.UploadImageView.as_view()),
 ]
