@@ -61,6 +61,7 @@ class EventSummarySerializer(serializers.ModelSerializer):
 
 
 class TicketTypeSerializer(serializers.ModelSerializer):
+    id = serializers.IntegerField(required=False, default=None)
     event = EventSummarySerializer(read_only=True)
 
     class Meta:
@@ -70,6 +71,7 @@ class TicketTypeSerializer(serializers.ModelSerializer):
 
 class EventSerializer(serializers.ModelSerializer):
     ticket_types = TicketTypeSerializer(many=True, required=False)
+    image = serializers.CharField(required=False, allow_null=True)
 
     class Meta:
         model = Event

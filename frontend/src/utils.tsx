@@ -33,6 +33,7 @@ export function getErrorMessage(error: APIError) {
 				.join("\n")
 		}
 	}
+	console.error("Unknown error format:", error)
 	return "An unknown error occurred"
 }
 
@@ -65,7 +66,7 @@ export interface User {
 export interface Event {
 	id: number
 	name: string
-	image: string
+	image?: string
 	description: string
 	date: string
 	location: string
@@ -91,7 +92,7 @@ export interface TicketType {
 export interface EventPostData {
 	id: number
 	name: string
-	image: string
+	image?: string
 	description: string
 	date: string
 	location: string

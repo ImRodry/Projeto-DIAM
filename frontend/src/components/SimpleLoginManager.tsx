@@ -17,7 +17,7 @@ function SimpleLoginManager() {
 			})
 			if (!response.ok) {
 				const responseData: APIError = await response.json()
-				throw new Error(getErrorMessage(responseData)) // TODO acho que nem é preciso mas nao deve ser tratada
+				throw new Error(getErrorMessage(responseData))
 			} else {
 				setUser(null)
 				setError(null)

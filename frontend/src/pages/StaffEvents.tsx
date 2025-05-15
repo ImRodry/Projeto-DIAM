@@ -19,7 +19,7 @@ function StaffEvents() {
 				credentials: "include",
 			}),
 			responseData: APIError | Event[] = await response.json()
-		if ("errors" in responseData) throw new Error(getErrorMessage(responseData)) // TODO nao consigo tratar o erro (?)
+		if ("errors" in responseData) throw new Error(getErrorMessage(responseData))
 		setEvents(responseData)
 	}
 
@@ -39,6 +39,7 @@ function StaffEvents() {
 	const handleDelete = async (eventId: number) => {
 		if (!confirm("Are you sure you want to delete this event?")) return
 
+		setError(null)
 		try {
 			const response = await fetchWithCSRF(`http://localhost:8000/api/events/${eventId}/`, {
 				method: "DELETE",
@@ -54,8 +55,7 @@ function StaffEvents() {
 		}
 	}
 
-	const uploadImageIfPresent = async (imageFile: File): Promise<string> => {
-		// TODO nao sei vais gostar disto, nem tinha reparado (promise string)
+	const uploadImage = async (imageFile: File): Promise<string> => {
 		const formData = new FormData()
 		formData.append("image", imageFile)
 
@@ -65,7 +65,7 @@ function StaffEvents() {
 				credentials: "include",
 			}),
 			responseData: APIError | { image_path: string } = await response.json()
-		if ("errors" in responseData) throw new Error(getErrorMessage(responseData)) // TODO nao sei é para tratar o erro
+		if ("errors" in responseData) throw new Error(getErrorMessage(responseData))
 
 		return responseData.image_path
 	}
@@ -74,9 +74,10 @@ function StaffEvents() {
 		e.preventDefault()
 		if (!selectedEvent) return
 
+		setError(null)
 		try {
 			if (selectedEvent.imageFile) {
-				const imageUrl = await uploadImageIfPresent(selectedEvent.imageFile)
+				const imageUrl = await uploadImage(selectedEvent.imageFile)
 				selectedEvent.image = imageUrl
 				delete selectedEvent.imageFile
 			}
@@ -88,7 +89,7 @@ function StaffEvents() {
 					body: JSON.stringify(selectedEvent),
 				}),
 				responseData: APIError | Event[] = await response.json()
-			if ("errors" in responseData) throw new Error(getErrorMessage(responseData)) // TODO prob nao é tratada tambem
+			if ("errors" in responseData) throw new Error(getErrorMessage(responseData))
 			setShowCreateModal(false)
 			setSelectedEvent(null)
 			fetchEvents()
@@ -101,10 +102,11 @@ function StaffEvents() {
 		e.preventDefault()
 		if (!selectedEvent) return
 
+		setError(null)
 		try {
 			// Upload image if a new one was selected
 			if (selectedEvent.imageFile) {
-				const imageUrl = await uploadImageIfPresent(selectedEvent.imageFile)
+				const imageUrl = await uploadImage(selectedEvent.imageFile)
 				selectedEvent.image = imageUrl
 				delete selectedEvent.imageFile
 			}
@@ -116,10 +118,9 @@ function StaffEvents() {
 					body: JSON.stringify(selectedEvent),
 				}),
 				responseData: APIError | Event = await response.json()
-			if ("errors" in responseData) throw new Error(getErrorMessage(responseData)) // TODO prob nao é tratada tambem
+			if ("errors" in responseData) throw new Error(getErrorMessage(responseData))
 			setShowEditModal(false)
 			setSelectedEvent(null)
-			setError(null)
 			fetchEvents()
 		} catch (err) {
 			setError(err.message)
@@ -137,7 +138,6 @@ function StaffEvents() {
 					setSelectedEvent({
 						id: 0,
 						name: "",
-						image: "",
 						description: "",
 						date: "",
 						location: "",

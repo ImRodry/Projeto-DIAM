@@ -37,8 +37,7 @@ function SignupModal({ show, onHide }: Props) {
 					}),
 				}),
 				responseData: APIError | User = await response.json()
-			console.log(responseData)
-			if ("errors" in responseData) throw new Error(getErrorMessage(responseData)) // TODO a mensagem recebida não é tratada
+			if ("errors" in responseData) throw new Error(getErrorMessage(responseData))
 			setUser(responseData)
 			setFormData(initialFormData)
 			onHide()

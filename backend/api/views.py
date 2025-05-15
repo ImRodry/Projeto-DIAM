@@ -195,6 +195,4 @@ class UploadImageView(APIView):
 
             return JsonResponse({"image_path": f"/images/{saved_path}"})
 
-        return JsonResponse(
-            {"errors": "No file uploaded."}, status=status.HTTP_400_BAD_REQUEST
-        )
+        raise ValidationError("No file uploaded")

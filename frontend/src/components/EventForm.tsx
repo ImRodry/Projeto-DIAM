@@ -146,8 +146,8 @@ function EventForm({ event, setEvent, onSubmit, onCancel }: EventFormProps) {
 									<Form.Label>Preço (€)</Form.Label>
 									<Form.Control
 										type="number"
-										step="0.01"
-										min="0.01"
+										step="1.00"
+										min="1.00"
 										value={ticket.price}
 										onChange={e => {
 											const updated = [...event.ticket_types]
@@ -198,11 +198,9 @@ function EventForm({ event, setEvent, onSubmit, onCancel }: EventFormProps) {
 												ticket_types: [
 													...prev.ticket_types,
 													{
-														id: 0,
 														name: "",
 														price: 0,
 														quantity_available: 0,
-														tickets: [],
 													},
 												],
 										  }

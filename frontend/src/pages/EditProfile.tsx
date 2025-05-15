@@ -58,9 +58,7 @@ function EditProfile() {
 					body: JSON.stringify(payload),
 				}),
 				responseData: User | APIError = await res.json()
-			console.log(responseData)
-			if ("errors" in responseData)
-				throw new Error(getErrorMessage(responseData)) // TODO a mensagem recebida não é tratada
+			if ("errors" in responseData) throw new Error(getErrorMessage(responseData))
 			else {
 				setUser(responseData)
 				navigate("/profile")
