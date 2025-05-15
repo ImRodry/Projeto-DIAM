@@ -1,5 +1,5 @@
 import { useState, type FormEvent, type ReactNode } from "react"
-import { Modal, Button, Form } from "react-bootstrap"
+import { Modal, Button, Form, Alert } from "react-bootstrap"
 import { fetchWithCSRF, getErrorMessage, type APIError, type User } from "../utils"
 import { useAuth } from "../contexts/AuthContext"
 
@@ -13,19 +13,27 @@ function LoginModal({ show, onHide, onShowSignup }: Props): ReactNode {
 	const [username, setUsername] = useState("")
 	const [password, setPassword] = useState("")
 	const { setUser } = useAuth()
+	const [error, setError] = useState<string | null>(null)
 
 	const handleSubmit = async (e: FormEvent) => {
 		e.preventDefault()
-		const response = await fetchWithCSRF("http://localhost:8000/api/login/", {
-				method: "POST",
-				credentials: "include",
-				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify({ username, password }),
-			}),
-			responseData: APIError | User = await response.json()
-		if ("errors" in responseData) throw new Error(getErrorMessage(responseData))
-		setUser(responseData)
-		onHide()
+		try {
+			const response = await fetchWithCSRF("http://localhost:8000/api/login/", {
+					method: "POST",
+					credentials: "include",
+					headers: { "Content-Type": "application/json" },
+					body: JSON.stringify({ username, password }),
+				}),
+				responseData: APIError | User = await response.json()
+			if ("errors" in responseData) throw new Error(getErrorMessage(responseData))
+			setUser(responseData)
+			setUsername("")
+			setPassword("")
+			setError(null)
+			onHide()
+		} catch (err) {
+			setError(err.message)
+		}
 	}
 
 	return (
@@ -60,6 +68,7 @@ function LoginModal({ show, onHide, onShowSignup }: Props): ReactNode {
 						</a>
 					</div>
 				</Modal.Body>
+				{error && <Alert variant="danger">{error}</Alert>}
 				<Modal.Footer>
 					<Button variant="secondary" onClick={onHide}>
 						Cancel

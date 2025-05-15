@@ -17,6 +17,7 @@ function EditProfile() {
 		confirm_password: "",
 	})
 	const navigate = useNavigate()
+	const [error, setError] = useState<string | null>(null)
 
 	useEffect(() => {
 		if (user) {
@@ -38,17 +39,6 @@ function EditProfile() {
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault()
 
-		if (formData.new_password || formData.confirm_password) {
-			if (!formData.old_password) {
-				alert("Old password is required to change your password.")
-				return
-			}
-			if (formData.new_password !== formData.confirm_password) {
-				alert("New passwords do not match.")
-				return
-			}
-		}
-
 		const payload = {
 			username: formData.username,
 			email: formData.email,
@@ -60,18 +50,23 @@ function EditProfile() {
 			}),
 		}
 
-		const res = await fetchWithCSRF("http://localhost:8000/api/user/", {
-				method: "PATCH",
-				headers: { "Content-Type": "application/json" },
-				credentials: "include",
-				body: JSON.stringify(payload),
-			}),
-			responseData: User | APIError = await res.json()
-		if ("errors" in responseData)
-			throw new Error(getErrorMessage(responseData))
-		else {
-			setUser(responseData)
-			navigate("/profile")
+		try {
+			const res = await fetchWithCSRF("http://localhost:8000/api/user/", {
+					method: "PATCH",
+					headers: { "Content-Type": "application/json" },
+					credentials: "include",
+					body: JSON.stringify(payload),
+				}),
+				responseData: User | APIError = await res.json()
+			console.log(responseData)
+			if ("errors" in responseData)
+				throw new Error(getErrorMessage(responseData)) // TODO a mensagem recebida não é tratada
+			else {
+				setUser(responseData)
+				navigate("/profile")
+			}
+		} catch (err) {
+			setError(err.message)
 		}
 	}
 
@@ -80,6 +75,7 @@ function EditProfile() {
 
 	return (
 		<Form onSubmit={handleSubmit}>
+			{error && <Alert variant="danger">{error}</Alert>}
 			<h2>Editar Perfil</h2>
 			<Form.Group className="mb-3">
 				<Form.Label>Username</Form.Label>

@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from "react"
-import { Modal, Button, Form } from "react-bootstrap"
+import { Modal, Button, Form, Alert } from "react-bootstrap"
 import { fetchWithCSRF, getErrorMessage, type APIError, type User } from "../utils"
 import { useAuth } from "../contexts/AuthContext"
 
@@ -15,26 +15,37 @@ function SignupModal({ show, onHide }: Props) {
 	const [firstName, setFirstName] = useState("")
 	const [lastName, setLastName] = useState("")
 	const { setUser } = useAuth()
+	const [error, setError] = useState<string | null>(null)
 
 	const handleSubmit = async (e: FormEvent) => {
 		e.preventDefault()
-		const response = await fetchWithCSRF("http://localhost:8000/api/signup/", {
-				method: "POST",
-				credentials: "include",
-				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify({
-					username,
-					password,
-					email,
-					first_name: firstName,
-					last_name: lastName,
+		try {
+			const response = await fetchWithCSRF("http://localhost:8000/api/signup/", {
+					method: "POST",
+					credentials: "include",
+					headers: { "Content-Type": "application/json" },
+					body: JSON.stringify({
+						username,
+						password,
+						email,
+						first_name: firstName,
+						last_name: lastName,
+					}),
 				}),
-			}),
-			responseData: APIError | User = await response.json()
-		if ("errors" in responseData)
-			throw new Error(getErrorMessage(responseData))
-		setUser(responseData)
-		onHide()
+				responseData: APIError | User = await response.json()
+			console.log(responseData)
+			if ("errors" in responseData) throw new Error(getErrorMessage(responseData)) // TODO a mensagem recebida não é tratada
+			setUser(responseData)
+			setUsername("")
+			setPassword("")
+			setEmail("")
+			setFirstName("")
+			setLastName("")
+			setError(null)
+			onHide()
+		} catch (err) {
+			setError(err.message)
+		}
 	}
 
 	return (
@@ -84,6 +95,7 @@ function SignupModal({ show, onHide }: Props) {
 							required
 						/>
 					</Form.Group>
+					{error && <Alert variant="danger">{error}</Alert>}
 				</Modal.Body>
 				<Modal.Footer>
 					<Button variant="secondary" onClick={onHide}>

@@ -1,6 +1,6 @@
 import { useRef, useEffect, useState } from "react"
 import { useParams } from "react-router"
-import { Card, Button, Spinner, ListGroup } from "react-bootstrap"
+import { Card, Button, Spinner, ListGroup, Alert } from "react-bootstrap"
 import LoginModal from "../components/LoginModal.tsx"
 import SignupModal from "../components/SignupModal.tsx"
 import { useAuth } from "../contexts/AuthContext"
@@ -20,6 +20,7 @@ function EventDetails() {
 	const [showSignup, setShowSignup] = useState(false)
 	const [loading, setLoading] = useState(true)
 	const { user } = useAuth()
+	const [error, setError] = useState<string | null>(null)
 
 	const [ticketQuantity, setTicketQuantity] = useState(1)
 	const [selectedTicketTypeId, setSelectedTicketTypeId] = useState<number | null>(null)
@@ -69,16 +70,20 @@ function EventDetails() {
 			quantity: ticketQuantity,
 		}
 
-		const response = await fetchWithCSRF("http://localhost:8000/api/purchases/", {
-				method: "POST",
-				body: JSON.stringify(purchaseData),
-				credentials: "include",
-				headers: {
-					"Content-Type": "application/json",
-				},
-			}),
-			responseData: APIError | Ticket = await response.json()
-		if ("errors" in responseData) throw new Error(getErrorMessage(responseData))
+		try {
+			const response = await fetchWithCSRF("http://localhost:8000/api/purchases/", {
+					method: "POST",
+					body: JSON.stringify(purchaseData),
+					credentials: "include",
+					headers: {
+						"Content-Type": "application/json",
+					},
+				}),
+				responseData: APIError | Ticket = await response.json()
+			if ("errors" in responseData) throw new Error(getErrorMessage(responseData))
+		} catch (err) {
+			setError(err.message)
+		}
 	}
 
 	const handleEvaluationSubmit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -107,6 +112,7 @@ function EventDetails() {
 			<LoginModal {...loginModalProps} />
 			<SignupModal {...signupModalProps} />
 			<Card className="mt-4 mb-4">
+				{error && <Alert variant="danger">{error}</Alert>}
 				{event.image && (
 					<Card.Img
 						variant="top"

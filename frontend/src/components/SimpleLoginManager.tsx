@@ -1,4 +1,5 @@
-import { Button } from "react-bootstrap"
+import { useState } from "react"
+import { Alert, Button } from "react-bootstrap"
 import { useNavigate } from "react-router"
 import { useAuth } from "../contexts/AuthContext"
 import { fetchWithCSRF, getErrorMessage, type APIError } from "../utils"
@@ -6,19 +7,25 @@ import { fetchWithCSRF, getErrorMessage, type APIError } from "../utils"
 function SimpleLoginManager() {
 	const navigate = useNavigate()
 	const { user, setUser } = useAuth()
+	const [error, setError] = useState<string | null>(null)
 
 	const handleLogout = async () => {
-		const response = await fetchWithCSRF("http://localhost:8000/api/logout/", {
-			method: "POST",
-			credentials: "include",
-		})
-		if (!response.ok) {
-			const responseData: APIError = await response.json()
-			throw new Error(getErrorMessage(responseData))
-		} else {
-			setUser(null)
-			navigate("/")
-			return
+		try {
+			const response = await fetchWithCSRF("http://localhost:8000/api/logout/", {
+				method: "POST",
+				credentials: "include",
+			})
+			if (!response.ok) {
+				const responseData: APIError = await response.json()
+				throw new Error(getErrorMessage(responseData)) // TODO acho que nem é preciso mas nao deve ser tratada
+			} else {
+				setUser(null)
+				setError(null)
+				navigate("/")
+				return
+			}
+		} catch (err) {
+			setError(err.message)
 		}
 	}
 
@@ -32,6 +39,7 @@ function SimpleLoginManager() {
 
 	return (
 		<div className="d-flex justify-content-between align-items-center gap-2">
+			{error && <Alert variant="danger">{error}</Alert>}
 			{user ? (
 				<>
 					{user.is_staff && (

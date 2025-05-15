@@ -19,7 +19,7 @@ function StaffEvents() {
 				credentials: "include",
 			}),
 			responseData: APIError | Event[] = await response.json()
-		if ("errors" in responseData) throw new Error(getErrorMessage(responseData))
+		if ("errors" in responseData) throw new Error(getErrorMessage(responseData)) // TODO nao consigo tratar o erro (?)
 		setEvents(responseData)
 	}
 
@@ -55,6 +55,7 @@ function StaffEvents() {
 	}
 
 	const uploadImageIfPresent = async (imageFile: File): Promise<string> => {
+		// TODO nao sei vais gostar disto, nem tinha reparado (promise string)
 		const formData = new FormData()
 		formData.append("image", imageFile)
 
@@ -64,7 +65,7 @@ function StaffEvents() {
 				credentials: "include",
 			}),
 			responseData: APIError | { image_path: string } = await response.json()
-		if ("errors" in responseData) throw new Error(getErrorMessage(responseData))
+		if ("errors" in responseData) throw new Error(getErrorMessage(responseData)) // TODO nao sei é para tratar o erro
 
 		return responseData.image_path
 	}
@@ -74,7 +75,6 @@ function StaffEvents() {
 		if (!selectedEvent) return
 
 		try {
-			// Upload image if selected
 			if (selectedEvent.imageFile) {
 				const imageUrl = await uploadImageIfPresent(selectedEvent.imageFile)
 				selectedEvent.image = imageUrl
@@ -88,12 +88,12 @@ function StaffEvents() {
 					body: JSON.stringify(selectedEvent),
 				}),
 				responseData: APIError | Event[] = await response.json()
-			if ("errors" in responseData) throw new Error(getErrorMessage(responseData))
+			if ("errors" in responseData) throw new Error(getErrorMessage(responseData)) // TODO prob nao é tratada tambem
 			setShowCreateModal(false)
 			setSelectedEvent(null)
 			fetchEvents()
 		} catch (err) {
-			setError("Failed to create event")
+			setError(err.message)
 		}
 	}
 
@@ -116,12 +116,13 @@ function StaffEvents() {
 					body: JSON.stringify(selectedEvent),
 				}),
 				responseData: APIError | Event = await response.json()
-			if ("errors" in responseData) throw new Error(getErrorMessage(responseData))
+			if ("errors" in responseData) throw new Error(getErrorMessage(responseData)) // TODO prob nao é tratada tambem
 			setShowEditModal(false)
 			setSelectedEvent(null)
+			setError(null)
 			fetchEvents()
 		} catch (err) {
-			setError("Failed to update event")
+			setError(err.message)
 		}
 	}
 

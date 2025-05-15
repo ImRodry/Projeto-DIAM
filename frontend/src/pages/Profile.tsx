@@ -17,8 +17,7 @@ function Profile() {
 		})
 			.then(async res => {
 				const responseData: APIError | Ticket[] = await res.json()
-				if ("errors" in responseData)
-					throw new Error(getErrorMessage(responseData))
+				if ("errors" in responseData) throw new Error(getErrorMessage(responseData)) // TODO ver se é preciso tratar o erro
 				setPurchases(responseData)
 			})
 			.catch(() => {
