@@ -21,6 +21,16 @@ function EventDetails() {
 	const [loading, setLoading] = useState(true)
 	const { user } = useAuth()
 	const [error, setError] = useState<string | null>(null)
+	const [success, setSuccess] = useState<string | null>(null)
+
+	useEffect(() => {
+		if (success) {
+			const timer = setTimeout(() => {
+				setSuccess(null)
+			}, 3000) // 3 seconds
+			return () => clearTimeout(timer)
+		}
+	}, [success])
 
 	const [ticketQuantity, setTicketQuantity] = useState(1)
 	const [selectedTicketTypeId, setSelectedTicketTypeId] = useState<number | null>(null)
@@ -80,6 +90,7 @@ function EventDetails() {
 					},
 				}),
 				responseData: APIError | Ticket = await response.json()
+			setSuccess("Bilhete comprado com sucesso!")
 			if ("errors" in responseData) throw new Error(getErrorMessage(responseData))
 		} catch (err) {
 			setError(err.message)
@@ -112,6 +123,7 @@ function EventDetails() {
 			<LoginModal {...loginModalProps} />
 			<SignupModal {...signupModalProps} />
 			<Card className="mt-4 mb-4">
+				{success && <Alert variant="success">{success}</Alert>}
 				{error && <Alert variant="danger">{error}</Alert>}
 				{event.image && (
 					<Card.Img
