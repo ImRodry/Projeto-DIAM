@@ -177,8 +177,26 @@ class PurchasesView(APIView):
     def post(self, request: Request):
         serializer = TicketSerializer(data=request.data)
         if serializer.is_valid():
-            serializer.save(user=request.user)
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
+            ticket_type = serializer.validated_data["ticket_type"]
+            quantity = serializer.validated_data.get("quantity")
+
+            # Check if a ticket with the same type already exists for the user
+            existing_ticket = Ticket.objects.filter(
+                user=request.user, ticket_type=ticket_type
+            ).first()
+
+            if existing_ticket:
+                print(f"Existing ticket found: {existing_ticket}")
+                # Increase the quantity of the existing ticket
+                existing_ticket.quantity += quantity
+                existing_ticket.save()
+                updated_serializer = TicketSerializer(existing_ticket)
+                return Response(updated_serializer.data, status=status.HTTP_200_OK)
+            else:
+                # Create a new ticket
+                serializer.save(user=request.user)
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+
         raise ValidationError(serializer.errors)
 
 
