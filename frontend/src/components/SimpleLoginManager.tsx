@@ -48,7 +48,10 @@ function SimpleLoginManager() {
 						</Button>
 					)}
 					<Button variant="success" size="sm" onClick={goToProfile}>
-						Logged in como: <strong>{user.username}</strong>
+						Logged in como:{" "}
+						<strong>
+							{user.first_name} {user.last_name}
+						</strong>
 					</Button>
 					<Button variant="outline-danger" size="sm" onClick={handleLogout}>
 						Logout
