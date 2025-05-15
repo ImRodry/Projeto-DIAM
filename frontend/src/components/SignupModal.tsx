@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from "react"
-import { Modal, Button, Form, Alert } from "react-bootstrap"
+import { Modal, Button, Form, Toast } from "react-bootstrap"
 import { fetchWithCSRF, getErrorMessage, type APIError, type SignupFormData, type User } from "../utils"
 import { useAuth } from "../contexts/AuthContext"
 
@@ -125,7 +125,25 @@ function SignupModal({ show, onHide }: Props) {
 							required
 						/>
 					</Form.Group>
-					{error && <Alert variant="danger">{error}</Alert>}
+					<div
+						style={{
+							position: "fixed",
+							top: "50%",
+							left: "50%",
+							transform: "translate(-50%, -50%)",
+							zIndex: 1055, // higher than Bootstrap modals
+							minWidth: "300px",
+						}}
+					>
+						{error && (
+							<Toast onClose={() => setError(null)} show={!!error} bg="danger" delay={5000} autohide>
+								<Toast.Header closeButton>
+									<strong className="me-auto">Erro</strong>
+								</Toast.Header>
+								<Toast.Body className="text-white">{error}</Toast.Body>
+							</Toast>
+						)}
+					</div>
 				</Modal.Body>
 				<Modal.Footer>
 					<Button

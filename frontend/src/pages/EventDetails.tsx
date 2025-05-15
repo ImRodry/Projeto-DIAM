@@ -1,6 +1,6 @@
 import { useRef, useEffect, useState } from "react"
 import { useParams } from "react-router"
-import { Card, Button, Spinner, ListGroup, Alert } from "react-bootstrap"
+import { Card, Button, Spinner, ListGroup, Toast } from "react-bootstrap"
 import LoginModal from "../components/LoginModal.tsx"
 import SignupModal from "../components/SignupModal.tsx"
 import { useAuth } from "../contexts/AuthContext"
@@ -98,8 +98,11 @@ function EventDetails() {
 			return
 		}
 
+		setError(null)
+		setSuccess(null)
+
 		if (!selectedTicketTypeId) {
-			alert("Por favor selecione um tipo de bilhete.")
+			setError("Por favor, selecione um tipo de bilhete.")
 			return
 		}
 
@@ -146,6 +149,10 @@ function EventDetails() {
 				throw new Error("Precisas de ter comprado bilhetes para avaliar o evento.")
 			}
 
+			if (eventTickets[0].rating !== null) {
+				throw new Error("Já avaliou este evento.")
+			}
+
 			const ticketId = eventTickets[0].id
 
 			const ratingResponse = await fetchWithCSRF(`http://localhost:8000/api/purchase/${ticketId}/`, {
@@ -182,11 +189,37 @@ function EventDetails() {
 
 	return (
 		<div>
+			<div
+				style={{
+					position: "fixed",
+					top: "50%",
+					left: "50%",
+					transform: "translate(-50%, -50%)",
+					zIndex: 1055,
+					minWidth: "300px",
+				}}
+			>
+				{success && (
+					<Toast onClose={() => setSuccess(null)} show={!!success} bg="success" delay={5000} autohide>
+						<Toast.Header closeButton>
+							<strong className="me-auto">Sucesso</strong>
+						</Toast.Header>
+						<Toast.Body className="text-white">{success}</Toast.Body>
+					</Toast>
+				)}
+
+				{error && (
+					<Toast onClose={() => setError(null)} show={!!error} bg="danger" delay={5000} autohide>
+						<Toast.Header closeButton>
+							<strong className="me-auto">Erro</strong>
+						</Toast.Header>
+						<Toast.Body className="text-white">{error}</Toast.Body>
+					</Toast>
+				)}
+			</div>
 			<LoginModal {...loginModalProps} />
 			<SignupModal {...signupModalProps} />
 			<Card className="mt-4 mb-4">
-				{success && <Alert variant="success">{success}</Alert>}
-				{error && <Alert variant="danger">{error}</Alert>}
 				{event.image && (
 					<Card.Img
 						variant="top"

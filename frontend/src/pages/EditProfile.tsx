@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { Button, Form, Spinner, Alert } from "react-bootstrap"
+import { Button, Form, Spinner, Alert, Toast } from "react-bootstrap"
 import { useNavigate } from "react-router"
 import { useAuth } from "../contexts/AuthContext"
 import { fetchWithCSRF, getErrorMessage, type APIError, type User } from "../utils"
@@ -18,6 +18,7 @@ function EditProfile() {
 	})
 	const navigate = useNavigate()
 	const [error, setError] = useState<string | null>(null)
+	const [success, setSuccess] = useState<string | null>(null)
 
 	useEffect(() => {
 		if (user) {
@@ -38,6 +39,8 @@ function EditProfile() {
 
 	const handleSubmit = async (e: React.FormEvent) => {
 		e.preventDefault()
+		setError(null)
+		setSuccess(null)
 
 		const payload = {
 			username: formData.username,
@@ -59,10 +62,9 @@ function EditProfile() {
 				}),
 				responseData: User | APIError = await res.json()
 			if ("errors" in responseData) throw new Error(getErrorMessage(responseData))
-			else {
-				setUser(responseData)
-				navigate("/profile")
-			}
+			setSuccess("Perfil atualizado com sucesso.")
+			setUser(responseData)
+			navigate("/profile")
 		} catch (err) {
 			setError(err.message)
 		}
@@ -73,7 +75,33 @@ function EditProfile() {
 
 	return (
 		<Form onSubmit={handleSubmit}>
-			{error && <Alert variant="danger">{error}</Alert>}
+			<div
+				style={{
+					position: "fixed",
+					top: "50%",
+					left: "50%",
+					transform: "translate(-50%, -50%)",
+					zIndex: 1055, // higher than Bootstrap modals
+					minWidth: "300px",
+				}}
+			>
+				{error && (
+					<Toast onClose={() => setError(null)} show={!!error} bg="danger" delay={5000} autohide>
+						<Toast.Header closeButton>
+							<strong className="me-auto">Erro</strong>
+						</Toast.Header>
+						<Toast.Body className="text-white">{error}</Toast.Body>
+					</Toast>
+				)}
+				{success && (
+					<Toast onClose={() => setSuccess(null)} show={!!success} bg="success" delay={5000} autohide>
+						<Toast.Header closeButton>
+							<strong className="me-auto">Sucesso</strong>
+						</Toast.Header>
+						<Toast.Body className="text-white">{success}</Toast.Body>
+					</Toast>
+				)}
+			</div>
 			<h2>Editar Perfil</h2>
 			<Form.Group className="mb-3">
 				<Form.Label>Username</Form.Label>

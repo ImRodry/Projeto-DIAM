@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import { Table, Button, Modal, Alert, Spinner, ListGroup } from "react-bootstrap"
+import { Table, Button, Modal, Spinner, ListGroup, Toast } from "react-bootstrap"
 import { useNavigate } from "react-router"
 import { useAuth } from "../contexts/AuthContext"
 import EventForm from "../components/EventForm"
@@ -12,6 +12,7 @@ function StaffEvents() {
 	const [showCreateModal, setShowCreateModal] = useState(false)
 	const [selectedEvent, setSelectedEvent] = useState<EditableEvent | null>(null)
 	const [error, setError] = useState<string | null>(null)
+	const [success, setSuccess] = useState<string | null>(null)
 	const { user } = useAuth()
 
 	const fetchEvents = async () => {
@@ -37,9 +38,9 @@ function StaffEvents() {
 	}
 
 	const handleDelete = async (eventId: number) => {
-		if (!confirm("Are you sure you want to delete this event?")) return
-
 		setError(null)
+		setSuccess(null)
+		if (!confirm("Are you sure you want to delete this event?")) return
 		try {
 			const response = await fetchWithCSRF(`http://localhost:8000/api/events/${eventId}/`, {
 				method: "DELETE",
@@ -49,6 +50,7 @@ function StaffEvents() {
 				const responseData: APIError = await response.json()
 				throw new Error(getErrorMessage(responseData))
 			}
+			setSuccess("Evento apagado com sucesso.")
 			fetchEvents()
 		} catch (err) {
 			setError(err.message)
@@ -73,7 +75,7 @@ function StaffEvents() {
 	const handleCreateSubmit = async (e: React.FormEvent) => {
 		e.preventDefault()
 		if (!selectedEvent) return
-
+		setSuccess(null)
 		setError(null)
 		try {
 			if (selectedEvent.imageFile) {
@@ -90,6 +92,7 @@ function StaffEvents() {
 				}),
 				responseData: APIError | Event[] = await response.json()
 			if ("errors" in responseData) throw new Error(getErrorMessage(responseData))
+			setSuccess("Evento criado com sucesso.")
 			setShowCreateModal(false)
 			setSelectedEvent(null)
 			fetchEvents()
@@ -101,7 +104,7 @@ function StaffEvents() {
 	const handleEditSubmit = async (e: React.FormEvent) => {
 		e.preventDefault()
 		if (!selectedEvent) return
-
+		setSuccess(null)
 		setError(null)
 		try {
 			// Upload image if a new one was selected
@@ -119,6 +122,7 @@ function StaffEvents() {
 				}),
 				responseData: APIError | Event = await response.json()
 			if ("errors" in responseData) throw new Error(getErrorMessage(responseData))
+			setSuccess("Evento editado com sucesso.")
 			setShowEditModal(false)
 			setSelectedEvent(null)
 			fetchEvents()
@@ -130,7 +134,33 @@ function StaffEvents() {
 	return (
 		<div>
 			<h1>Administração de Eventos</h1>
-			{error && <Alert variant="danger">{error}</Alert>}
+			<div
+				style={{
+					position: "fixed",
+					top: "50%",
+					left: "50%",
+					transform: "translate(-50%, -50%)",
+					zIndex: 1055, // higher than Bootstrap modals
+					minWidth: "300px",
+				}}
+			>
+				{success && (
+					<Toast onClose={() => setSuccess(null)} show={!!success} bg="success" delay={5000} autohide>
+						<Toast.Header closeButton>
+							<strong className="me-auto">Sucesso</strong>
+						</Toast.Header>
+						<Toast.Body className="text-white">{success}</Toast.Body>
+					</Toast>
+				)}
+				{error && (
+					<Toast onClose={() => setError(null)} show={!!error} bg="danger" delay={5000} autohide>
+						<Toast.Header closeButton>
+							<strong className="me-auto">Erro</strong>
+						</Toast.Header>
+						<Toast.Body className="text-white">{error}</Toast.Body>
+					</Toast>
+				)}
+			</div>
 			<Button
 				variant="primary"
 				className="mb-3"
