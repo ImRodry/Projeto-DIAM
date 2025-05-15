@@ -34,10 +34,7 @@ class SignupView(APIView):
                     serializer.data,
                     status=status.HTTP_201_CREATED,
                 )
-        return JsonResponse(
-            serializer.errors,
-            status=status.HTTP_400_BAD_REQUEST,
-        )
+        raise ValidationError(serializer.errors)
 
 
 class LoginView(APIView):
@@ -72,7 +69,7 @@ class UserView(APIView):
         if serializer.is_valid():
             serializer.save()
             return JsonResponse(serializer.data, status=status.HTTP_200_OK)
-        return JsonResponse(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        raise ValidationError(serializer.errors)
 
 
 class EventMultipleView(APIView):
@@ -91,7 +88,7 @@ class EventMultipleView(APIView):
             return JsonResponse(
                 serializer.data, status=status.HTTP_201_CREATED, safe=False
             )
-        return JsonResponse(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        raise ValidationError(serializer.errors)
 
 
 class EventSingleView(APIView):
@@ -112,7 +109,7 @@ class EventSingleView(APIView):
         if serializer.is_valid():
             serializer.save()
             return JsonResponse(serializer.data, status=status.HTTP_200_OK, safe=False)
-        return JsonResponse(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        raise ValidationError(serializer.errors)
 
     def delete(self, request: Request, pk: int):
         event = self.get_object(pk)
@@ -140,7 +137,7 @@ class TicketTypeMultipleView(APIView):
                 status=status.HTTP_201_CREATED,
                 safe=False,
             )
-        return JsonResponse(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        raise ValidationError(serializer.errors)
 
 
 class TicketTypeSingleView(APIView):
@@ -161,7 +158,7 @@ class TicketTypeSingleView(APIView):
         if serializer.is_valid():
             serializer.save()
             return JsonResponse(serializer.data, status=status.HTTP_200_OK, safe=False)
-        return JsonResponse(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        raise ValidationError(serializer.errors)
 
     def delete(self, request: Request, event_id: int, pk: int):
         ticket_type = self.get_object(pk)
