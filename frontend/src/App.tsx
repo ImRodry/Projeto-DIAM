@@ -1,6 +1,6 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Navbar, Nav, Container } from "react-bootstrap"
-import { Route, Routes } from "react-router"
+import { Route, Routes, useLocation } from "react-router"
 import LoginModal from "./components/LoginModal.tsx"
 import SignupModal from "./components/SignupModal.tsx"
 import SimpleLoginManager from "./components/SimpleLoginManager"
@@ -10,11 +10,13 @@ import EditProfile from "./pages/EditProfile"
 import EventDetails from "./pages/EventDetails"
 import Home from "./pages/Home"
 import Profile from "./pages/Profile"
+import { fetchWithCSRF } from "./utils"
 
 function AppContent() {
 	const [showLogin, setShowLogin] = useState(false)
 	const [showSignup, setShowSignup] = useState(false)
-	const { user } = useAuth()
+	const location = useLocation()
+	const { user, setUser } = useAuth()
 
 	const loginModalProps = {
 		show: showLogin,
@@ -29,6 +31,23 @@ function AppContent() {
 		show: showSignup,
 		onHide: () => setShowSignup(false),
 	}
+
+	useEffect(() => {
+		console.log("Fetching user data...")
+		fetchWithCSRF("http://localhost:8000/api/user/", {
+			credentials: "include",
+		})
+			.then(res => {
+				if (!res.ok) throw new Error("User not logged in")
+				return res.json()
+			})
+			.then(data => {
+				setUser(data)
+			})
+			.catch(() => {
+				setUser(null)
+			})
+	}, [location.pathname])
 
 	return (
 		<>
