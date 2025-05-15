@@ -91,7 +91,7 @@ function AppContent() {
 			<SignupModal {...signupModalProps} />
 			<footer className="bg-light text-center text-muted py-4 mt-auto">
 				<Container>
-					<small className="d-block mb-2">&copy; AEISCTE - 2025</small>
+					<small className="d-block mb-2">AEISCTE</small>
 					<small className="d-block">Telefone: +351 217 903 018</small>
 					<small className="d-block">
 						Morada:{" "}
