@@ -50,6 +50,7 @@ export enum UserRole {
 export interface SignupFormData {
 	username: string
 	password: string
+	confirm_password: string
 	email: string
 	firstName: string
 	lastName: string

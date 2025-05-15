@@ -14,6 +14,7 @@ function SignupModal({ show, onHide }: Props) {
 	const initialFormData: SignupFormData = {
 		username: "",
 		password: "",
+		confirm_password: "",
 		email: "",
 		firstName: "",
 		lastName: "",
@@ -23,6 +24,12 @@ function SignupModal({ show, onHide }: Props) {
 	const handleSubmit = async (e: FormEvent) => {
 		e.preventDefault()
 		setError(null)
+
+		if (formData.password !== formData.confirm_password) {
+			setError("Passwords do not match.")
+			return
+		}
+
 		try {
 			const response = await fetchWithCSRF("http://localhost:8000/api/signup/", {
 					method: "POST",
@@ -74,6 +81,16 @@ function SignupModal({ show, onHide }: Props) {
 							name="password"
 							type="password"
 							value={formData.password}
+							onChange={handleChange}
+							required
+						/>
+					</Form.Group>
+					<Form.Group controlId="formSignupConfirmPassword" className="mt-3">
+						<Form.Label>Confirm Password</Form.Label>
+						<Form.Control
+							name="confirm_password"
+							type="password"
+							value={formData.confirm_password}
 							onChange={handleChange}
 							required
 						/>

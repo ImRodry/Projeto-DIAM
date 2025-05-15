@@ -61,7 +61,7 @@ function Profile() {
 						<th>Data</th>
 						<th>Tipo de Bilhete</th>
 						<th>Quantidade</th>
-						<th>Preço</th>
+						<th>Preço por Bilhete</th>
 					</tr>
 				</thead>
 				<tbody>

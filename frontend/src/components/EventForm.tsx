@@ -30,6 +30,7 @@ function EventForm({ event, setEvent, onSubmit, onCancel }: EventFormProps) {
 			setPreviewUrl(objectUrl)
 		}
 	}
+	const isFormValid = event.ticket_types.every(tt => tt.groups.length > 0)
 
 	return (
 		<Form onSubmit={onSubmit}>
@@ -261,7 +262,7 @@ function EventForm({ event, setEvent, onSubmit, onCancel }: EventFormProps) {
 				<Button variant="secondary" type="button" onClick={onCancel}>
 					Cancelar
 				</Button>
-				<Button variant="primary" type="submit">
+				<Button variant="primary" type="submit" disabled={!isFormValid}>
 					Guardar
 				</Button>
 			</Modal.Footer>
