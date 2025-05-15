@@ -8,9 +8,11 @@ import {
 	fetchWithCSRF,
 	getErrorMessage,
 	type APIError,
+	type Event,
 	type EditableEvent,
 	type Ticket,
 	type TicketPostData,
+	type TicketType,
 } from "../utils"
 
 function EventDetails() {
@@ -58,31 +60,24 @@ function EventDetails() {
 
 	const fetchEvaluations = async () => {
 		try {
-			const response = await fetch(`http://localhost:8000/api/events/${id}/`)
-			const eventData = await response.json()
-			console.log("Event data:", eventData)
-			console.log("Ticket types:", eventData.ticket_types)
-			
-			// Get all tickets with ratings from the event's ticket types
+			const response = await fetch(`http://localhost:8000/api/events/${id}/`),
+				eventData: APIError | Event = await response.json()
+			if ("errors" in eventData) throw new Error(getErrorMessage(eventData))
+
 			const allTickets = eventData.ticket_types
-				.flatMap((type: any) => {
-					console.log("Ticket type:", type)
-					console.log("Tickets in type:", type.tickets)
+				.flatMap((type: TicketType) => {
 					return type.tickets || []
 				})
-				.filter((ticket: any) => {
-					console.log("Checking ticket:", ticket)
+				.filter((ticket: Ticket) => {
 					return ticket.rating !== null
 				})
-				.map((ticket: any) => ({
+				.map((ticket: Ticket) => ({
 					stars: ticket.rating,
-					comment: ticket.rating_comment
+					comment: ticket.rating_comment,
 				}))
-			
-			console.log("Final evaluations:", allTickets)
 			setEvaluations(allTickets)
 		} catch (err) {
-			console.error("Failed to load evaluations:", err)
+			setError(err.message)
 		}
 	}
 
@@ -91,9 +86,9 @@ function EventDetails() {
 			.then(res => res.json())
 			.then(data => {
 				setEvent(data)
-				fetchEvaluations() // Fetch evaluations after event is loaded
+				fetchEvaluations()
 			})
-			.catch(err => console.error("Failed to load event", err))
+			.catch(err => setError(err.message))
 			.finally(() => setLoading(false))
 	}, [id])
 
@@ -139,20 +134,19 @@ function EventDetails() {
 		const comment = commentInput.value
 
 		try {
-			// Get the user's tickets for this event
 			const ticketsResponse = await fetch(`http://localhost:8000/api/purchases/`, {
 				credentials: "include",
 			})
 			const tickets = await ticketsResponse.json()
-			const eventTickets = tickets.filter((ticket: any) => 
+			const eventTickets = tickets.filter((ticket: any) =>
 				event?.ticket_types.some((type: any) => type.id === ticket.ticket_type.id)
 			)
-			
+
 			if (eventTickets.length === 0) {
-				throw new Error("You need to have purchased a ticket to evaluate this event.")
+				throw new Error("Precisas de ter comprado bilhetes para avaliar o evento.")
 			}
 
-			const ticketId = eventTickets[0].id // Use the first ticket found
+			const ticketId = eventTickets[0].id
 
 			const ratingResponse = await fetchWithCSRF(`http://localhost:8000/api/purchase/${ticketId}/`, {
 				method: "PATCH",
@@ -169,16 +163,14 @@ function EventDetails() {
 				const data = await ratingResponse.json()
 				throw new Error(getErrorMessage(data))
 			}
-			
+
 			setSuccess("Avaliação enviada com sucesso!")
 			setShowEvaluationForm(false)
 			setSelectedStars(0)
 			form.reset()
-			
-			// Refresh evaluations after submission
+
 			await fetchEvaluations()
 		} catch (err) {
-			console.error(err)
 			setError(err.message)
 		}
 	}
@@ -272,27 +264,29 @@ function EventDetails() {
 						)}
 						{isPastEvent && (
 							<>
-								<Button
-									variant="warning"
-									onClick={() => {
-										setShowEvaluationForm(prev => {
-											const next = !prev
-											if (next) {
-												setShowEvaluations(false)
-												setTimeout(
-													() =>
-														evaluationFormRef.current?.scrollIntoView({
-															behavior: "smooth",
-														}),
-													100
-												)
-											}
-											return next
-										})
-									}}
-								>
-									Avaliar Evento
-								</Button>
+								{user && (
+									<Button
+										variant="warning"
+										onClick={() => {
+											setShowEvaluationForm(prev => {
+												const next = !prev
+												if (next) {
+													setShowEvaluations(false)
+													setTimeout(
+														() =>
+															evaluationFormRef.current?.scrollIntoView({
+																behavior: "smooth",
+															}),
+														100
+													)
+												}
+												return next
+											})
+										}}
+									>
+										Avaliar Evento
+									</Button>
+								)}
 								<Button
 									variant="secondary"
 									onClick={() => {

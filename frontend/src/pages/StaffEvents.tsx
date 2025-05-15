@@ -149,6 +149,7 @@ function StaffEvents() {
 								name: "",
 								price: 0,
 								quantity_available: 0,
+								groups: [],
 							},
 						],
 					})

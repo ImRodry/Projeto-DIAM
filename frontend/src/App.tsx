@@ -33,7 +33,6 @@ function AppContent() {
 	}
 
 	useEffect(() => {
-		console.log("Fetching user data...")
 		fetchWithCSRF("http://localhost:8000/api/user/", {
 			credentials: "include",
 		})

@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react"
 import { Button, Col, Form, Modal, Row } from "react-bootstrap"
-import { type EditableEvent } from "../utils"
+import { UserRole, type EditableEvent } from "../utils"
 
 type EventFormProps = {
 	event: EditableEvent | null
@@ -127,65 +127,108 @@ function EventForm({ event, setEvent, onSubmit, onCancel }: EventFormProps) {
 				<Form.Group className="mb-3">
 					<Form.Label>Tipos de Bilhete</Form.Label>
 					<div>
-						{event.ticket_types.map((ticket, index) => (
-							<Row key={index} className="mb-2 align-items-end">
-								<Col md={4}>
-									<Form.Label>Nome</Form.Label>
-									<Form.Control
-										type="text"
-										value={ticket.name}
-										onChange={e => {
-											const updated = [...event.ticket_types]
-											updated[index].name = e.target.value
-											setEvent(prev => (prev ? { ...prev, ticket_types: updated } : null))
-										}}
-										required
-									/>
-								</Col>
-								<Col md={3}>
-									<Form.Label>Preço (€)</Form.Label>
-									<Form.Control
-										type="number"
-										step="1.00"
-										min="1.00"
-										value={ticket.price}
-										onChange={e => {
-											const updated = [...event.ticket_types]
-											updated[index].price = parseFloat(e.target.value)
-											setEvent(prev => (prev ? { ...prev, ticket_types: updated } : null))
-										}}
-										required
-									/>
-								</Col>
-								<Col md={3}>
-									<Form.Label>Quantidade</Form.Label>
-									<Form.Control
-										type="number"
-										min="1"
-										value={ticket.quantity_available}
-										onChange={e => {
-											const updated = [...event.ticket_types]
-											updated[index].quantity_available = parseInt(e.target.value, 10)
-											setEvent(prev => (prev ? { ...prev, ticket_types: updated } : null))
-										}}
-										required
-									/>
-								</Col>
-								<Col md={1}>
-									<Button
-										variant="danger"
-										onClick={() => {
-											if (event.ticket_types.length > 1) {
-												const updated = event.ticket_types.filter((_, i) => i !== index)
+						{event.ticket_types.map((ticketType, index) => (
+							<div key={`ticket-type-${index}`}>
+								<Row className="mb-2 align-items-end">
+									<Col md={4}>
+										<Form.Label>Nome</Form.Label>
+										<Form.Control
+											type="text"
+											value={ticketType.name}
+											onChange={e => {
+												const updated = [...event.ticket_types]
+												updated[index].name = e.target.value
 												setEvent(prev => (prev ? { ...prev, ticket_types: updated } : null))
-											}
-										}}
-										disabled={event.ticket_types.length === 1} // Disable remove button if only one ticket type left
-									>
-										&times;
-									</Button>
-								</Col>
-							</Row>
+											}}
+											required
+										/>
+									</Col>
+									<Col md={3}>
+										<Form.Label>Preço</Form.Label>
+										<Form.Control
+											type="number"
+											step="1.00"
+											min="1.00"
+											value={ticketType.price}
+											onChange={e => {
+												const updated = [...event.ticket_types]
+												updated[index].price = parseFloat(e.target.value)
+												setEvent(prev => (prev ? { ...prev, ticket_types: updated } : null))
+											}}
+											required
+										/>
+									</Col>
+									<Col md={3}>
+										<Form.Label>Quantidade</Form.Label>
+										<Form.Control
+											type="number"
+											min="1"
+											value={ticketType.quantity_available}
+											onChange={e => {
+												const updated = [...event.ticket_types]
+												updated[index].quantity_available = parseInt(e.target.value, 10)
+												setEvent(prev => (prev ? { ...prev, ticket_types: updated } : null))
+											}}
+											required
+										/>
+									</Col>
+									<Col md={1}>
+										<Button
+											variant="danger"
+											onClick={() => {
+												if (event.ticket_types.length > 1) {
+													const updated = event.ticket_types.filter((_, i) => i !== index)
+													setEvent(prev => (prev ? { ...prev, ticket_types: updated } : null))
+												}
+											}}
+											disabled={event.ticket_types.length === 1}
+										>
+											&times;
+										</Button>
+									</Col>
+								</Row>
+								<Row>
+									<Col md={12}>
+										<Form.Label>Grupos</Form.Label>
+										<div className="d-flex flex-wrap gap-3 mb-2">
+											{Object.keys(UserRole)
+												.filter(key => isNaN(Number(key)))
+												.map(key => {
+													const roleKey = key as keyof typeof UserRole
+													const isChecked = (ticketType.groups || []).includes(
+														UserRole[roleKey]
+													)
+													return (
+														<Form.Check
+															type="checkbox"
+															id={`role-${key}-${index}`}
+															key={key}
+															label={key}
+															value={key}
+															checked={isChecked}
+															onChange={e => {
+																const updated = [...event.ticket_types]
+																const roleKey = key as keyof typeof UserRole
+																const role = UserRole[roleKey]
+																const currentGroups = updated[index].groups || []
+																if (e.target.checked) {
+																	updated[index].groups = [...currentGroups, role]
+																} else {
+																	updated[index].groups = currentGroups.filter(
+																		(r: UserRole) => r !== role
+																	)
+																}
+																setEvent(prev =>
+																	prev ? { ...prev, ticket_types: updated } : null
+																)
+															}}
+														/>
+													)
+												})}
+										</div>
+									</Col>
+								</Row>
+							</div>
 						))}
 						<Button
 							variant="success"
@@ -201,6 +244,7 @@ function EventForm({ event, setEvent, onSubmit, onCancel }: EventFormProps) {
 														name: "",
 														price: 0,
 														quantity_available: 0,
+														groups: [],
 													},
 												],
 										  }

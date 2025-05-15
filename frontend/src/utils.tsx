@@ -41,7 +41,7 @@ export function isStaff(user: User): boolean {
 	return user.groups.includes(UserRole.Staff)
 }
 
-export const enum UserRole {
+export enum UserRole {
 	Aluno = 1,
 	Sócio,
 	Staff,
@@ -97,6 +97,7 @@ export interface TicketType {
 	price: number
 	quantity_available: number
 	tickets: Ticket[]
+	groups: UserRole[]
 }
 
 export interface EventPostData {
@@ -117,6 +118,7 @@ export interface TicketTypePostData {
 	name: string
 	price: number
 	quantity_available: number
+	groups: UserRole[]
 }
 
 export interface TicketPostData {
