@@ -71,6 +71,21 @@ function AppContent() {
 
 			<LoginModal {...loginModalProps} />
 			<SignupModal {...signupModalProps} />
+			<footer className="bg-light text-center text-muted py-4 mt-auto">
+				<Container>
+					<small className="d-block mb-2">&copy; AEISCTE - 2025</small>
+					<small className="d-block">Telefone: +351 217 903 018</small>
+					<small className="d-block">
+						Morada:{" "}
+						<a href="https://maps.app.goo.gl/ueHk8P7VR1sgT5rE9" target="_blank" rel="noopener noreferrer">
+							Av. das Forças Armadas, 1649-026 Lisboa, Edifício ISCTE, Sala 0N12
+						</a>
+					</small>
+					<small className="d-block">
+						Email: <a href="mailto:geral@aeiscte-iul.pt">geral@aeiscte-iul.pt</a>
+					</small>
+				</Container>
+			</footer>
 		</>
 	)
 }
@@ -78,7 +93,9 @@ function AppContent() {
 function App() {
 	return (
 		<AuthProvider>
-			<AppContent />
+			<div className="d-flex flex-column min-vh-100">
+				<AppContent />
+			</div>
 		</AuthProvider>
 	)
 }
