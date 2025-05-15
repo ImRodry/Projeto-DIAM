@@ -37,9 +37,13 @@ export function getErrorMessage(error: APIError) {
 	return "An unknown error occurred"
 }
 
+export function isStaff(user: User): boolean {
+	return user.groups.includes(UserRole.Staff)
+}
+
 export const enum UserRole {
 	Aluno = 1,
-	Socio,
+	Sócio,
 	Staff,
 }
 
@@ -66,7 +70,7 @@ export interface User {
 	first_name: string
 	last_name: string
 	date_joined: Date
-	is_staff: boolean
+	groups: UserRole[]
 }
 
 export interface Event {

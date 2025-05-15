@@ -25,7 +25,6 @@ class UserSerializer(serializers.ModelSerializer):
             "date_joined",
             "first_name",
             "last_name",
-            "is_staff",
             "groups",
         ]
 
@@ -107,6 +106,22 @@ class EventSerializer(serializers.ModelSerializer):
             "ticket_types",
             "is_visible",
         ]
+
+    def get_ticket_types(self, event):
+        request = self.context.get("request")
+        user = request.user if request else None
+
+        queryset = event.ticket_types.all()
+
+        if not user or user.is_anonymous:
+            return []
+
+        if not user.is_staff:
+            user_groups = user.groups.all()
+            queryset = queryset.filter(groups__in=user_groups).distinct()
+
+        serializer = TicketTypeSerializer(queryset, many=True)
+        return serializer.data
 
     def create(self, validated_data: dict):
         ticket_types_data = validated_data.pop("ticket_types", [])

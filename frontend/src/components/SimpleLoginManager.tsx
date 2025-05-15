@@ -2,7 +2,7 @@ import { useState } from "react"
 import { Alert, Button } from "react-bootstrap"
 import { useNavigate } from "react-router"
 import { useAuth } from "../contexts/AuthContext"
-import { fetchWithCSRF, getErrorMessage, type APIError } from "../utils"
+import { fetchWithCSRF, getErrorMessage, isStaff, type APIError } from "../utils"
 
 function SimpleLoginManager() {
 	const navigate = useNavigate()
@@ -42,7 +42,7 @@ function SimpleLoginManager() {
 			{error && <Alert variant="danger">{error}</Alert>}
 			{user ? (
 				<>
-					{user.is_staff && (
+					{isStaff(user) && (
 						<Button variant="info" size="sm" onClick={goToStaff}>
 							Staff
 						</Button>
