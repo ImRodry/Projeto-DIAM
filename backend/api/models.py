@@ -1,4 +1,4 @@
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Group
 from django.db import models
 from django.core.validators import MinValueValidator, MaxValueValidator
 
@@ -22,6 +22,9 @@ class TicketType(models.Model):
     name = models.TextField()
     price = models.DecimalField(max_digits=4, decimal_places=2)
     quantity_available = models.PositiveSmallIntegerField()
+    groups = models.ManyToManyField(
+        Group, help_text="Grupos que podem comprar este tipo de bilhete"
+    )
 
 
 class Ticket(models.Model):

@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Group
 from rest_framework.validators import UniqueValidator
 from .models import Event, TicketType, Ticket
 
@@ -71,10 +71,22 @@ class TicketTypeSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField(required=False, default=None)
     event = EventSummarySerializer(read_only=True)
     tickets = TicketRatingSerializer(many=True, read_only=True)
+    groups = serializers.PrimaryKeyRelatedField(
+        queryset=Group.objects.all(),
+        many=True,
+    )
 
     class Meta:
         model = TicketType
-        fields = ["id", "name", "price", "quantity_available", "event", "tickets"]
+        fields = [
+            "id",
+            "name",
+            "price",
+            "quantity_available",
+            "event",
+            "tickets",
+            "groups",
+        ]
 
 
 class EventSerializer(serializers.ModelSerializer):
