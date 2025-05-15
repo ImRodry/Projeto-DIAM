@@ -37,6 +37,12 @@ export function getErrorMessage(error: APIError) {
 	return "An unknown error occurred"
 }
 
+export const enum UserRole {
+	Aluno = 1,
+	Socio,
+	Staff,
+}
+
 export interface SignupFormData {
 	username: string
 	password: string
