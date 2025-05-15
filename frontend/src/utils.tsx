@@ -36,6 +36,19 @@ export function getErrorMessage(error: APIError) {
 	return "An unknown error occurred"
 }
 
+export interface SignupFormData {
+	username: string
+	password: string
+	email: string
+	firstName: string
+	lastName: string
+}
+
+export interface LoginFormData {
+	username: string
+	password: string
+}
+
 export interface APIError {
 	errors: unknown
 }

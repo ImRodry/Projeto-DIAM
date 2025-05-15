@@ -1,6 +1,6 @@
 import { useState, type FormEvent } from "react"
 import { Modal, Button, Form, Alert } from "react-bootstrap"
-import { fetchWithCSRF, getErrorMessage, type APIError, type User } from "../utils"
+import { fetchWithCSRF, getErrorMessage, type APIError, type SignupFormData, type User } from "../utils"
 import { useAuth } from "../contexts/AuthContext"
 
 interface Props {
@@ -9,43 +9,47 @@ interface Props {
 }
 
 function SignupModal({ show, onHide }: Props) {
-	const [username, setUsername] = useState("")
-	const [password, setPassword] = useState("")
-	const [email, setEmail] = useState("")
-	const [firstName, setFirstName] = useState("")
-	const [lastName, setLastName] = useState("")
 	const { setUser } = useAuth()
 	const [error, setError] = useState<string | null>(null)
+	const initialFormData: SignupFormData = {
+		username: "",
+		password: "",
+		email: "",
+		firstName: "",
+		lastName: "",
+	}
+	const [formData, setFormData] = useState<SignupFormData>(initialFormData)
 
 	const handleSubmit = async (e: FormEvent) => {
 		e.preventDefault()
+		setError(null)
 		try {
 			const response = await fetchWithCSRF("http://localhost:8000/api/signup/", {
 					method: "POST",
 					credentials: "include",
 					headers: { "Content-Type": "application/json" },
 					body: JSON.stringify({
-						username,
-						password,
-						email,
-						first_name: firstName,
-						last_name: lastName,
+						username: formData.username,
+						password: formData.password,
+						email: formData.email,
+						first_name: formData.firstName,
+						last_name: formData.lastName,
 					}),
 				}),
 				responseData: APIError | User = await response.json()
 			console.log(responseData)
 			if ("errors" in responseData) throw new Error(getErrorMessage(responseData)) // TODO a mensagem recebida não é tratada
 			setUser(responseData)
-			setUsername("")
-			setPassword("")
-			setEmail("")
-			setFirstName("")
-			setLastName("")
-			setError(null)
+			setFormData(initialFormData)
 			onHide()
 		} catch (err) {
 			setError(err.message)
 		}
+	}
+
+	const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+		const { name, value } = e.target
+		setFormData(prev => ({ ...prev, [name]: value }))
 	}
 
 	return (
@@ -58,47 +62,64 @@ function SignupModal({ show, onHide }: Props) {
 					<Form.Group controlId="formSignupUsername">
 						<Form.Label>Username</Form.Label>
 						<Form.Control
+							name="username"
 							type="text"
-							value={username}
-							onChange={e => setUsername(e.target.value)}
+							value={formData.username}
+							onChange={handleChange}
 							required
 						/>
 					</Form.Group>
 					<Form.Group controlId="formSignupPassword" className="mt-3">
 						<Form.Label>Password</Form.Label>
 						<Form.Control
+							name="password"
 							type="password"
-							value={password}
-							onChange={e => setPassword(e.target.value)}
+							value={formData.password}
+							onChange={handleChange}
 							required
 						/>
 					</Form.Group>
 					<Form.Group controlId="formSignupEmail" className="mt-3">
 						<Form.Label>Email</Form.Label>
-						<Form.Control type="email" value={email} onChange={e => setEmail(e.target.value)} required />
+						<Form.Control
+							name="email"
+							type="email"
+							value={formData.email}
+							onChange={handleChange}
+							required
+						/>
 					</Form.Group>
 					<Form.Group controlId="formSignupFirstName" className="mt-3">
 						<Form.Label>First Name</Form.Label>
 						<Form.Control
+							name="firstName"
 							type="text"
-							value={firstName}
-							onChange={e => setFirstName(e.target.value)}
+							value={formData.firstName}
+							onChange={handleChange}
 							required
 						/>
 					</Form.Group>
 					<Form.Group controlId="formSignupLastName" className="mt-3">
 						<Form.Label>Last Name</Form.Label>
 						<Form.Control
+							name="lastName"
 							type="text"
-							value={lastName}
-							onChange={e => setLastName(e.target.value)}
+							value={formData.lastName}
+							onChange={handleChange}
 							required
 						/>
 					</Form.Group>
 					{error && <Alert variant="danger">{error}</Alert>}
 				</Modal.Body>
 				<Modal.Footer>
-					<Button variant="secondary" onClick={onHide}>
+					<Button
+						variant="secondary"
+						onClick={() => {
+							onHide()
+							setFormData(initialFormData)
+							setError(null)
+						}}
+					>
 						Cancel
 					</Button>
 					<Button variant="primary" type="submit">
