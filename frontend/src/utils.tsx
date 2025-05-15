@@ -18,7 +18,6 @@ export function fetchWithCSRF(url: string, options: RequestInit = {}): Promise<R
 
 export function getErrorMessage(error: APIError) {
 	if (error.errors) {
-		console.log(error.errors)
 		if (Array.isArray(error.errors)) {
 			return error.errors.map((err: any) => err.message).join(", ")
 		} else if (typeof error.errors === "string") {

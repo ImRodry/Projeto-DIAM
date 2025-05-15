@@ -9,6 +9,8 @@ from rest_framework.response import Response
 from rest_framework.request import Request
 from rest_framework.views import APIView
 from rest_framework import status
+from backend.settings import MEDIA_ROOT
+
 from .serializers import (
     UserSerializer,
     EventSerializer,
@@ -49,10 +51,7 @@ class LoginView(APIView):
                 UserSerializer(user).data,
                 status=status.HTTP_200_OK,
             )
-        else:
-            return JsonResponse(
-                {"error": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED
-            )
+        raise ValidationError("Invalid credentials")
 
 
 class LogoutView(APIView):
@@ -173,12 +172,12 @@ class TicketTypeSingleView(APIView):
 class PurchasesView(APIView):
     permission_classes = [IsAuthenticated]
 
-    def get(self, request):
+    def get(self, request: Request):
         tickets = Ticket.objects.filter(user=request.user)
         serializer = TicketSerializer(tickets, many=True)
         return JsonResponse(serializer.data, status=status.HTTP_200_OK, safe=False)
 
-    def post(self, request):
+    def post(self, request: Request):
         serializer = TicketSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save(user=request.user)
@@ -187,13 +186,16 @@ class PurchasesView(APIView):
 
 
 class UploadImageView(APIView):
-    def post(self, request, *args, **kwargs):
+    def post(self, request: Request):
+
         if request.FILES and request.FILES.get("image"):
             uploaded_file = request.FILES["image"]
+
             filename = f"upload_{uploaded_file.name}"
-            fs = FileSystemStorage(location="images/")
+
+            fs = FileSystemStorage(location=MEDIA_ROOT)
             saved_path = fs.save(filename, uploaded_file)
+
             return JsonResponse({"image_path": f"/images/{saved_path}"})
-        return JsonResponse(
-            {"message": "Invalid request"}, status=status.HTTP_400_BAD_REQUEST
-        )
+
+        return ValidationError("Invalid credentials")
