@@ -163,6 +163,9 @@ function EditProfile() {
 					placeholder="Repeat new password"
 				/>
 			</Form.Group>
+			<Button variant="secondary" className="me-2" onClick={() => navigate(-1)}>
+				Voltar
+			</Button>
 			<Button variant="primary" type="submit">
 				Guardar Alterações
 			</Button>

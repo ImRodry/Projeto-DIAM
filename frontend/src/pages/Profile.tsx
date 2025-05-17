@@ -36,6 +36,9 @@ function Profile() {
 
 	return (
 		<div>
+			<Button variant="secondary" className="mb-3" onClick={() => navigate("/")}>
+				Voltar à Página Inicial
+			</Button>
 			<h2>O Seu Perfil</h2>
 			<Card className="mb-4">
 				<Card.Body>

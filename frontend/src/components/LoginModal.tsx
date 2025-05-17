@@ -71,7 +71,7 @@ function LoginModal({ show, onHide, onShowSignup }: Props): ReactNode {
 						/>
 					</Form.Group>
 					<div className="mt-3">
-						<span>Don't have an account? </span>
+						<span>Não tem conta? </span>
 						<a href="#" onClick={onShowSignup} className="text-primary">
 							Sign up
 						</a>

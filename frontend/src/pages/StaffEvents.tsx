@@ -133,6 +133,9 @@ function StaffEvents() {
 
 	return (
 		<div>
+			<Button variant="secondary" className="mb-3" onClick={() => navigate("/")}>
+				Voltar à Página Inicial
+			</Button>
 			<h1>Administração de Eventos</h1>
 			<div
 				style={{

@@ -1,5 +1,5 @@
 import { useRef, useEffect, useState } from "react"
-import { useParams } from "react-router"
+import { useParams, useNavigate } from "react-router"
 import { Card, Button, Spinner, ListGroup, Toast } from "react-bootstrap"
 import LoginModal from "../components/LoginModal.tsx"
 import SignupModal from "../components/SignupModal.tsx"
@@ -22,6 +22,7 @@ function EventDetails() {
 	const [showSignup, setShowSignup] = useState(false)
 	const [loading, setLoading] = useState(true)
 	const { user } = useAuth()
+	const navigate = useNavigate()
 	const [error, setError] = useState<string | null>(null)
 	const [success, setSuccess] = useState<string | null>(null)
 
@@ -189,6 +190,9 @@ function EventDetails() {
 
 	return (
 		<div>
+			<Button variant="secondary" className="mt-4" onClick={() => navigate("/")}>
+				Voltar para a Página Inicial
+			</Button>
 			<div
 				style={{
 					position: "fixed",
