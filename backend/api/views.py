@@ -48,7 +48,7 @@ class LoginView(APIView):
                 UserSerializer(user).data,
                 status=status.HTTP_200_OK,
             )
-        raise ValidationError("Invalid credentials")
+        raise ValidationError("Credenciais inválidas.")
 
 
 class LogoutView(APIView):
@@ -96,7 +96,7 @@ class EventSingleView(APIView):
         try:
             return Event.objects.get(pk=pk)
         except Event.DoesNotExist:
-            raise ValidationError("Event not found.")
+            raise ValidationError("Evento não encontrado.")
 
     def get(self, request: Request, pk):
         event = self.get_object(pk)
@@ -115,7 +115,9 @@ class EventSingleView(APIView):
         event = self.get_object(pk)
         for ticket_type in event.ticket_types.all():
             if ticket_type.tickets.exists():
-                raise ValidationError("Cannot delete event with sold/issued tickets.")
+                raise ValidationError(
+                    "Não é possível excluir o evento, pois existem bilhetes associados."
+                )
         event.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
@@ -161,10 +163,10 @@ class PurchaseSingleView(APIView):
         try:
             ticket = Ticket.objects.get(pk=pk)
         except Ticket.DoesNotExist:
-            raise ValidationError("Ticket not found.")
+            raise ValidationError("Bilhete não encontrado.")
 
         if ticket.user != request.user:
-            raise PermissionDenied("You do not have permission to modify this ticket.")
+            raise PermissionDenied("Não tem permissão para editar este bilhete.")
 
         rating = request.data.get("rating")
         rating_comment = request.data.get("rating_comment")

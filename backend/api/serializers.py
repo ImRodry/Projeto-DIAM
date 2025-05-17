@@ -8,7 +8,7 @@ class UserSerializer(serializers.ModelSerializer):
     username = serializers.CharField(
         validators=[
             UniqueValidator(
-                queryset=User.objects.all(), message="Username already exists."
+                queryset=User.objects.all(), message="O Username já existe."
             )
         ]
     )
@@ -43,11 +43,11 @@ class UserSerializer(serializers.ModelSerializer):
         if password:
             if not old_password:
                 raise serializers.ValidationError(
-                    {"error": "This field is required to change the password."}
+                    {"error": "Este campo é obrigatório para mudar de password."}
                 )
             if not instance.check_password(old_password):
                 raise serializers.ValidationError(
-                    {"error": "Old password is incorrect."}
+                    {"error": "Password Antinga está incorreta."}
                 )
             instance.set_password(password)
 
@@ -189,7 +189,7 @@ class TicketSerializer(serializers.ModelSerializer):
 
             if quantity > remaining:
                 raise serializers.ValidationError(
-                    f"Only {remaining} tickets remaining for this ticket type."
+                    f"Sobram apenas {remaining} bilhetes deste tipo para compra."
                 )
 
         return data

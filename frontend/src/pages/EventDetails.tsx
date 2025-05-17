@@ -25,19 +25,8 @@ function EventDetails() {
 	const navigate = useNavigate()
 	const [error, setError] = useState<string | null>(null)
 	const [success, setSuccess] = useState<string | null>(null)
-
-	useEffect(() => {
-		if (success) {
-			const timer = setTimeout(() => {
-				setSuccess(null)
-			}, 3000)
-			return () => clearTimeout(timer)
-		}
-	}, [success])
-
 	const [ticketQuantity, setTicketQuantity] = useState(1)
 	const [selectedTicketTypeId, setSelectedTicketTypeId] = useState<number | null>(null)
-
 	const [showEvaluationForm, setShowEvaluationForm] = useState(false)
 	const [showEvaluations, setShowEvaluations] = useState(false)
 	const [selectedStars, setSelectedStars] = useState<number>(0)
@@ -122,8 +111,8 @@ function EventDetails() {
 					},
 				}),
 				responseData: APIError | Ticket = await response.json()
-			setSuccess("Bilhete comprado com sucesso!")
 			if ("errors" in responseData) throw new Error(getErrorMessage(responseData))
+			setSuccess("Bilhete comprado com sucesso!")
 		} catch (err) {
 			setError(err.message)
 		}
