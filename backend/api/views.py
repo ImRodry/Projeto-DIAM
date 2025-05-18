@@ -142,7 +142,6 @@ class PurchasesView(APIView):
             ).first()
 
             if existing_ticket:
-                print(f"Existing ticket found: {existing_ticket}")
                 # Increase the quantity of the existing ticket
                 existing_ticket.quantity += quantity
                 existing_ticket.save()
