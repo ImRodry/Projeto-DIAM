@@ -77,6 +77,8 @@ function EventDetails() {
 			})
 			.catch(err => setError(err.message))
 			.finally(() => setLoading(false))
+	}, [id])
+	useEffect(() => {
 		fetchWithCSRF(`http://localhost:8000/api/purchases/`, {
 			credentials: "include",
 		})
@@ -84,7 +86,7 @@ function EventDetails() {
 			.then((tickets: Ticket[]) =>
 				setEventTicket(tickets.find(t => t.ticket_type.event.id === Number(id)) || null)
 			)
-	}, [id])
+	}, [evaluations])
 
 	const handleBuyClick = async () => {
 		if (!user) {
