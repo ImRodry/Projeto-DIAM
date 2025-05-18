@@ -10,8 +10,12 @@ class Event(models.Model):
     date = models.DateTimeField()
     description = models.TextField()
     location = models.TextField()
-    latitude = models.FloatField()
-    longitude = models.FloatField()
+    latitude = models.FloatField(
+        validators=[MinValueValidator(-90), MaxValueValidator(90)]
+    )
+    longitude = models.FloatField(
+        validators=[MinValueValidator(-180), MaxValueValidator(180)]
+    )
     is_visible = models.BooleanField(default=False)
 
 
