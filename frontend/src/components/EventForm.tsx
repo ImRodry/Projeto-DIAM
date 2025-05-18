@@ -96,9 +96,10 @@ function EventForm({ event, setEvent, onSubmit, onCancel }: EventFormProps) {
 								type="number"
 								step="any"
 								value={event.latitude}
-								onChange={e =>
-									setEvent(prev => (prev ? { ...prev, latitude: parseFloat(e.target.value) } : null))
-								}
+								onChange={e => {
+									const value = parseFloat(e.target.value)
+									if (!isNaN(value)) setEvent(prev => (prev ? { ...prev, latitude: value } : null))
+								}}
 								required
 							/>
 						</Col>
@@ -108,9 +109,10 @@ function EventForm({ event, setEvent, onSubmit, onCancel }: EventFormProps) {
 								type="number"
 								step="any"
 								value={event.longitude}
-								onChange={e =>
-									setEvent(prev => (prev ? { ...prev, longitude: parseFloat(e.target.value) } : null))
-								}
+								onChange={e => {
+									const value = parseFloat(e.target.value)
+									if (!isNaN(value)) setEvent(prev => (prev ? { ...prev, longitude: value } : null))
+								}}
 								required
 							/>
 						</Col>
