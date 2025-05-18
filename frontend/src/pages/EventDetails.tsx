@@ -267,7 +267,7 @@ function EventDetails() {
 								<>
 									<select
 										className="form-select"
-										style={{ width: "200px" }}
+										style={{ width: "300px" }}
 										value={selectedTicketTypeId ?? ""}
 										onChange={e => setSelectedTicketTypeId(Number(e.target.value))}
 									>
