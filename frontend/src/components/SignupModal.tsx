@@ -131,7 +131,7 @@ function SignupModal({ show, onHide }: Props) {
 							top: "50%",
 							left: "50%",
 							transform: "translate(-50%, -50%)",
-							zIndex: 1055, // higher than Bootstrap modals
+							zIndex: 1060,
 							minWidth: "300px",
 						}}
 					>

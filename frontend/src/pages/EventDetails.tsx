@@ -188,7 +188,7 @@ function EventDetails() {
 					top: "50%",
 					left: "50%",
 					transform: "translate(-50%, -50%)",
-					zIndex: 1055,
+					zIndex: 1060,
 					minWidth: "300px",
 				}}
 			>
