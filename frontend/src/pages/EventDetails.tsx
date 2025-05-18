@@ -18,6 +18,7 @@ import {
 function EventDetails() {
 	const { id } = useParams<{ id: string }>()
 	const [event, setEvent] = useState<EditableEvent | null>(null)
+	const [eventTicket, setEventTicket] = useState<Ticket | null>(null)
 	const [showLogin, setShowLogin] = useState(false)
 	const [showSignup, setShowSignup] = useState(false)
 	const [loading, setLoading] = useState(true)
@@ -55,12 +56,8 @@ function EventDetails() {
 			if ("errors" in eventData) throw new Error(getErrorMessage(eventData))
 
 			const allTickets = eventData.ticket_types
-				.flatMap((type: TicketType) => {
-					return type.tickets || []
-				})
-				.filter((ticket: Ticket) => {
-					return ticket.rating !== null
-				})
+				.flatMap((type: TicketType) => type.tickets || [])
+				.filter((ticket: Ticket) => ticket.rating !== null)
 				.map((ticket: Ticket) => ({
 					stars: ticket.rating,
 					comment: ticket.rating_comment,
@@ -80,6 +77,13 @@ function EventDetails() {
 			})
 			.catch(err => setError(err.message))
 			.finally(() => setLoading(false))
+		fetchWithCSRF(`http://localhost:8000/api/purchases/`, {
+			credentials: "include",
+		})
+			.then(r => r.json())
+			.then((tickets: Ticket[]) =>
+				setEventTicket(tickets.find(t => t.ticket_type.event.id === Number(id)) || null)
+			)
 	}, [id])
 
 	const handleBuyClick = async () => {
@@ -127,25 +131,9 @@ function EventDetails() {
 		const comment = commentInput.value
 
 		try {
-			const ticketsResponse = await fetch(`http://localhost:8000/api/purchases/`, {
-				credentials: "include",
-			})
-			const tickets = await ticketsResponse.json()
-			const eventTickets = tickets.filter((ticket: any) =>
-				event?.ticket_types.some((type: any) => type.id === ticket.ticket_type.id)
-			)
+			if (!eventTicket) throw new Error("Precisas de ter comprado bilhetes para avaliar o evento.")
 
-			if (eventTickets.length === 0) {
-				throw new Error("Precisas de ter comprado bilhetes para avaliar o evento.")
-			}
-
-			if (eventTickets[0].rating !== null) {
-				throw new Error("Já avaliou este evento.")
-			}
-
-			const ticketId = eventTickets[0].id
-
-			const ratingResponse = await fetchWithCSRF(`http://localhost:8000/api/purchase/${ticketId}/`, {
+			const ratingResponse = await fetchWithCSRF(`http://localhost:8000/api/purchase/${eventTicket.id}/`, {
 				method: "PATCH",
 				credentials: "include",
 				headers: {
@@ -299,7 +287,7 @@ function EventDetails() {
 							)
 						) : (
 							<>
-								{user && (
+								{user && eventTicket?.rating === null && (
 									<Button
 										variant="warning"
 										onClick={() => {
